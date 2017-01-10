@@ -1,0 +1,379 @@
+var Puddi = require ('./puddi/puddi.js');
+var Drawable = require('./puddi/puddidrawable.js');
+var Objects = require('./arrayobjects.js');
+var Cell = Objects.Cell;
+var Variable = Objects.Variable;
+var Array = Objects.Array;
+var Vector = require('victor');
+var Range = ace.require('ace/range').Range;
+
+var StackFrame = function(parent, label = "") {
+    Drawable.call(this, parent);
+    this._label = label;
+    this._variables = [];
+}
+
+StackFrame.prototype = Object.create(Drawable.prototype);
+StackFrame.prototype.constructor = StackFrame;
+
+StackFrame.prototype.addVariable = function(v) { this._variables.push(v); };
+StackFrame.prototype.removeVariable = function(v) {
+    for (let i = 0; i < this._variables.length; ) {
+	if (this._variables[i].equals(v)) {
+	    this._variables.splice(i, 1);
+	    this.removeChildAt(i);
+	}
+	else {
+	    i++;
+	}
+    }
+}
+StackFrame.prototype.getVariables = function() { return this._variables; };
+
+StackFrame.prototype.getWidth = function() {
+    let h = 0;
+    for (let v of this._variables) {
+	h += v.getWidth();
+    }
+    return h;
+}
+
+StackFrame.prototype.getHeight = function() {
+    let h = 0;
+    for (let v of this._variables) {
+	h += v.getHeight();
+    }
+    return h;
+}
+
+StackFrame.prototype._getLabelWidth = function(ctx) {
+    let w = 0;
+    for (let v of this._variables) {
+	let vw = v.getLabelWidth(ctx);
+	if (vw > w) {
+	    w = vw;
+	}
+    }
+    return w;
+}
+
+StackFrame.prototype.setVariablePositions = function(ctx) {
+    if (!this._variables.length) {
+	return;
+    }
+    let labelWidth = this._getLabelWidth(ctx) + 9;
+    console.log(labelWidth);
+    let offset_y = this._variables[0].getHeight() / 2 +
+	10 / 2 // get font height from ctx;
+    for (let v of this._variables) {
+	// let h = v.getHeight();
+	v.setPosition(new Vector(14 + labelWidth, offset_y));
+	offset_y += v.getHeight();
+    }
+    return labelWidth;
+}
+
+StackFrame.prototype._drawSelf = function(ctx) {
+    let labelWidth = this.setVariablePositions(ctx);
+    let textHeight = 10; // get from ctx font
+    ctx.fillText(this._label, 0, 0);// -textHeight / 2);
+    // let w = this.getWidth();
+    let w = ctx.canvas.width;
+    let h = this.getHeight();
+    ctx.fillStyle = "gray";
+    ctx.fillRect(0, textHeight / 2, w, h);
+    ctx.strokeRect(0, textHeight / 2, w, h);
+    // ctx.strokeStyle = "#2f4f4f";
+    // ctx.lineWidth = 2;
+    // for (let v of this._variables) {
+    // 	let pos = v.getPosition();
+    // 	let vh = v.getHeight();
+    // 	ctx.beginPath();
+    // 	ctx.moveTo(0, pos.y + vh / 2);
+    // 	ctx.lineTo(labelWidth, pos.y + vh / 2);
+    // 	ctx.closePath();
+    // 	ctx.stroke();
+    // }
+    
+    ctx.fillStyle = "#bebebe";//"#d3d3d3";//"#696969";
+    ctx.fillRect(0, textHeight / 2, labelWidth, this.getHeight());
+}
+
+var AnimInterpreter = function(parent, aprog = []) {
+    Drawable.call(this, parent);
+    this.setProg(aprog);
+    this._frame_stack = [];
+    this.reset();
+}
+
+AnimInterpreter.prototype = Object.create(Drawable.prototype);
+AnimInterpreter.prototype.constructor = AnimInterpreter;
+
+AnimInterpreter.prototype.setProg = function(aprog) {
+    this._aprog = aprog; // array of commands
+}
+
+AnimInterpreter.prototype.reset = function() {
+    this._pc = 0;
+    this._autoplay = false;
+    this._fast_forward = false;
+    this._autoplay_counter = 0;
+    this._clear_frame_stack();
+    this._frame_stack = [new StackFrame(this, "main")];
+    // this._frame_id_counter = 0;
+    // this._frame_map = [];
+    this._var_map = []; // map anim_ids to (variable, frame) pairs
+    this._editor = ace.edit("editor");
+    // this._activeLineMarker = null;
+    this._setActiveLine(-1);
+}
+
+AnimInterpreter.prototype.init = AnimInterpreter.prototype.reset;
+
+// function addValueToArray(arr, value) {
+//     switch (value[0]) {
+//     case "AAtom":
+// 	arr.addElement(new Cell(arr, value[1]));
+// 	break;
+//     case "AArray":
+// 	let a = new Array(arr);
+// 	for (let v of value[1]) {
+// 	    addValueToArray(a, v);
+// 	}
+// 	arr.addElement(a);
+// 	break;
+//     default:
+// 	console.log("error in addValueToArray in animinterp.js");
+// 	console.log(value[0]);
+//     }
+// }
+
+function parseValue(parent, value) {
+    console.log("parsing value: " + value);
+    switch (value[0]) {
+    case "AAtom":
+	return new Cell(parent, value[1]);
+    case "AArray":
+	let arr = new Array(parent);
+	for (let v of value[1]) {
+	    arr.addElement(parseValue(arr, v));
+	    // addValueToArray(arr, v);
+	}
+	return arr;
+    default:
+	console.log("error in parseValue in animinterp.js");
+	console.log(value[0]);
+    }
+}
+
+AnimInterpreter.prototype._getCurrentFrame = function() {
+    return this._frame_stack[this._frame_stack.length - 1];
+}
+
+function parseId(id) {
+    console.log("in parseId");
+    console.log(id);
+    return id;
+}
+
+AnimInterpreter.prototype._create = function(id, ty, lbl) {
+    let curFrame = this._getCurrentFrame();
+    let v = new Variable(curFrame, lbl);
+    curFrame.addVariable(v);
+    this._var_map[id] = [v, curFrame];
+    switch (ty) {
+    case "ATVar":
+	v.setElement(new Cell(v, ""));
+	break;
+    case "ATArray":
+	v.setElement(new Array(v));
+	break;
+    default:
+	console.log("error in create in animinterp.js");
+    }
+}
+
+AnimInterpreter.prototype._destroy = function(id) {
+    let vid = parseId(id);
+    let a = this._var_map[vid];
+    let v = a[0];
+    let frame = a[1];
+    frame.removeVariable(v);
+    delete this._var_map[vid];
+}
+
+AnimInterpreter.prototype._insert = function(id, index, value) {
+    console.log("in insert");
+    console.log(value[0]);
+    console.log(value[1]);
+    let arr = this._array_map[value[0]];
+    let v = parseValue(arr, value[1]);
+    arr.insertElement(v, index);
+}
+
+AnimInterpreter.prototype._delete = function(id, index) {
+    let vid = parseId(id);
+    let v = this._var_map(vid)[0];
+    let arr = v.getElement(); // assume it's an array
+    arr.deleteAt(index);
+}
+
+AnimInterpreter.prototype._assign = function(loc, value) {
+    console.log("in assign");
+    console.log(value);
+    let id = loc[1];
+    let vid = parseId(id);
+    let v = this._var_map[vid][0];
+    switch (loc[0]) {
+    case "LVar":
+	v.setElement(parseValue(v, value));
+	break;
+    case "LArrayCell":
+	let index = loc[1];
+	let arr = v.getElement(); // assume it's an array
+	arr.assignAt(index, parseValue(arr, value));
+	break;
+    default:
+	console.log("error in assign in animinterp.js");
+    }
+}
+
+AnimInterpreter.prototype._swap = function(id, index1, index2) {
+    let vid = parseId(id);
+    let v = this._var_map[vid][0];
+    let arr = v.getElement(); // assume it's an array
+    arr.swap(index1, index2);
+}
+
+AnimInterpreter.prototype._clear = function(id) {
+    let vid = parseId(id);
+    let v = this._var_map[vid][0];
+    let arr = v.getElement(); // assume it's an array
+    arr.clear();
+}
+
+AnimInterpreter.prototype._interpInstr = function(instr) {
+    console.log("interpreting " + instr[0]);
+    console.log(instr);
+    console.log("");
+    switch (instr[0]) {
+    case "ICreate":
+	var id = instr[1];
+	var ty = instr[2];
+	var lbl = instr[3];
+	this._create(id, ty, lbl);
+	break;
+    case "IDestroy":
+	id = instr[1];
+	this._destroy(id);
+	break;
+    case "IInsert":
+	id = instr[1];
+	var index = instr[2];
+	var value = instr[3];
+	this._insert(id, index, value);
+	break;
+    case "IDelete":
+	id = instr[1];
+	index = instr[2];
+	this._delete(id, index);
+	break;
+    case "IAssign":
+	let loc = instr[1];
+	value = instr[2];
+	this._assign(loc, value);
+	break;
+    case "ISwap":
+	id = instr[1];
+	index1 = instr[2];
+	index2 = instr[3];
+	this._swap(id, index1, index2);
+	break;
+    case "IClear":
+	id = instr[1];
+	this._clear(id);
+	break;
+    default:
+	console.log("unknown animation instruction");
+    }
+}
+
+AnimInterpreter.prototype._addFrame = function(label) {
+    this._frame_stack.push(new StackFrame(this, label));
+}
+
+AnimInterpreter.prototype._deleteFrame = function() {
+    let frame = this._frame_stack.pop();
+    this.removeChild(frame);
+}
+
+AnimInterpreter.prototype._clear_frame_stack = function() {
+    while (this._frame_stack.length) {
+	this._deleteFrame();
+    }
+}
+
+AnimInterpreter.prototype._setActiveLine = function(lnum) {
+    if (this._activeLineMarker !== null) {
+	this._editor.session.removeMarker(this._activeLineMarker);
+    }
+    if (lnum >= 0) {
+	this._activeLineMarker =
+	    this._editor.session.addMarker(new Range(lnum-1, 0, lnum-1, 1),
+					   "lineMarker", "fullLine");
+    }
+    else {
+	this._activeLineMarker = null;
+    }
+}
+
+AnimInterpreter.prototype._interpCom = function(com) {
+    console.log("interpreting " + com[0]);
+    // console.log(com[1]);
+    // console.log(com[1][0][0]);
+    // console.log(com[1][1]);
+    // console.log("");
+    switch (com[0]) {
+    case "CFrameBegin":
+	var flabel = com[1][0];
+	var lnum = com[1][1];
+	this._setActiveLine(lnum);
+	this._addFrame(flabel);
+	break;
+    case "CFrameEnd":
+	lnum = com[1];
+	this._setActiveLine(lnum);
+	this._deleteFrame();
+	break;
+    case "CStep":
+	let instrs = com[1][0];
+	lnum = com[1][1];
+	this._setActiveLine(lnum);
+	for (let instr of instrs) {
+	    this._interpInstr(instr);
+	}
+	break;
+    default:
+	console.log("unknown animation command");
+    }
+}
+
+AnimInterpreter.prototype.stepForward = function() {
+    if (this._pc >= this._aprog.length) {
+	return;
+    }
+    console.log("stepping. pc = " + this._pc);
+    this._interpCom(this._aprog[this._pc]);
+    this._pc++;
+}
+
+AnimInterpreter.prototype._drawSelf = function(ctx) {
+    offset_y = 10; // font height from ctx
+    for (let frame of this._frame_stack) {
+	frame.setPosition(new Vector(0, offset_y));
+	offset_y += frame.getHeight() + 20; // get font height from ctx
+    }
+}
+
+// EXPORT
+module.exports = AnimInterpreter;

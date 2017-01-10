@@ -1,0 +1,174 @@
+var $ = require('jquery-browserify')
+var sexp = require('sexp');
+
+var Puddi = require('./puddi/puddi.js');
+var PuddiDrawable = require('./puddi/puddidrawable.js');
+var Vector = require('victor');
+
+var Objects = require('./arrayobjects.js');
+var Cell = Objects.Cell;
+var Variable = Objects.Variable;
+var AArray = Objects.Array;
+
+var ary = sexp("(foo bar 'string with spaces' 1 (2 3 4))");
+
+var Interp = require('./animinterp.js');
+
+function arr_to_string(arr) {
+    let str = "";
+    str += '[';
+    for (let i = 0; i < arr.length; i++) {
+	if (Array.isArray(arr[i])) {
+	    str += arr_to_string(arr[i]);
+	}
+	else {
+	    str += arr[i].toString();
+	}
+	if (i < arr.length - 1) {
+	    str += ", ";
+	}
+    }
+    return str + ']';
+}
+
+function startEdit() {
+    $("#canvas").css("display", "none");
+    $("#editbutton").css("display", "none");
+    $("#playbutton").css("display", "none");
+    $("#stepbutton").css("display", "none");
+    $("#backbutton").css("display", "none");
+    $("#fasterbutton").css("display", "none");
+    $("#slowerbutton").css("display", "none");
+    $("#resetbutton").css("display", "none");
+
+    $("#gobutton").css("display", "inline");
+
+    interpreter.reset();
+    let editor = ace.edit("editor");
+    editor.setReadOnly(false);
+
+    $("#feedback").text("Press 'Go' to compile the animation program.");
+}
+
+function startAnimation(aprog) {
+    let coms = aprog[2];
+    interpreter.setProg(coms);
+    $("#gobutton").css("display", "none");
+
+    $("#canvas").css("display", "block");
+    $("#editbutton").css("display", "inline");
+    $("#playbutton").css("display", "inline");
+    $("#stepbutton").css("display", "inline");
+    $("#backbutton").css("display", "inline");
+    $("#fasterbutton").css("display", "inline");
+    $("#slowerbutton").css("display", "inline");
+    $("#resetbutton").css("display", "inline");
+
+    let editor = ace.edit("editor");
+    editor.setReadOnly(true);
+
+    $("#feedback").html("Finished compiling.<br>Press 'Play' to start the animation or 'Step' to go one step at a time.<br>Press 'Edit' to end the animation and return to editing the program.");
+}
+
+function errorMsg(msg) {
+    $("#feedback").text(msg);
+}
+
+var worker = new Worker ("./scripts/aaljs.js");
+var worker_handler = new Object ();
+
+worker.onmessage = function (m) {
+    if (typeof m.data == 'string') {
+        console.log("" + m.data);
+    } else {
+        console.log ("[ASYNCH] back from " + m.data.fname);
+        var handler = worker_handler[m.data.fname];
+        handler (m.data.result);
+    }
+}
+
+function ASYNCH (action_name, action_args, cont) {
+    worker_handler[action_name] = cont;
+    worker.postMessage ({fname: action_name, args: action_args});
+    console.log ("[ASYNCH] " + action_name + " (" + action_args + ")");
+}
+
+function compile () {
+    let editor = ace.edit("editor");
+    var txt = editor.getValue();
+    ASYNCH ("compile", [txt], function (resp) {
+	console.log("response from compile: " + resp);
+	// let response = sexp(resp);
+	// switch (response[0]) {
+	// case "SuccessResponse":
+	//     let success = response[1];
+	//     let result = success[0];
+	//     let aprog = success[1];
+	//     startAnimation(aprog);
+	//     break;
+	// case "ErrorResponse":
+	//     let error = response[1];
+	//     errorMsg(error);
+	//     break;
+	// default:
+	//     errorMsg("unknown response from server");
+	//}
+    })
+}
+
+function init() {
+    $("#gobutton").click(function() {
+	// console.log("button clicked");
+	// $("#feedback").text("Compiling...");
+	// let editor = ace.edit("editor");
+	// let source_code = editor.getValue();
+	// $.post("http://127.0.0.1:80",
+	//        source_code,
+	//        function(data) {
+	// 	   let response = sexp(data);
+	// 	   switch (response[0]) {
+	// 	   case "SuccessResponse":
+	// 	       let success = response[1];
+	// 	       let result = success[0];
+	// 	       let aprog = success[1];
+	// 	       startAnimation(aprog);
+	// 	       break;
+	// 	   case "ErrorResponse":
+	// 	       let error = response[1];
+	// 	       errorMsg(error);
+	// 	       break;
+	// 	   default:
+	// 	       errorMsg("unknown response from server");
+	// 	   }
+	//        },
+	//        "text");
+	compile();
+    });
+
+    $("#stepbutton").click(function() {
+	interpreter.stepForward();
+    });
+
+    $("#editbutton").click(function() {
+	startEdit();
+    });
+
+    $("#resetbutton").click(function() {
+	interpreter.reset();
+    });
+    
+    let ctx = document.getElementById('canvas').getContext('2d');
+    Puddi.run(ctx);
+    startEdit();
+
+    // configure ace editor
+    // editor.setTheme("ace/theme/twilight");
+    let editor = ace.edit("editor");
+    editor.setTheme("ace/theme/iplastic");
+    editor.session.setMode("ace/mode/javascript");
+    editor.session.setUseWorker(false); // disable errors/warnings
+}
+
+var interpreter = new Interp();
+
+init();
