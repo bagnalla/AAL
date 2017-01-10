@@ -99,7 +99,7 @@ Variable.prototype._drawSelf = function(ctx) {
     // draw label
     //let labelWidth = ctx.measureText(this._label).width;
     ctx.fillText(this._label, -MIN_CELL_WIDTH / 2 // need single cell width
-		 - this.getLabelWidth(ctx) - 6, 0);
+		 - this.getLabelWidth(ctx) - 6, 2.5);
 }
 
 

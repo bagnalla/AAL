@@ -76,7 +76,7 @@ StackFrame.prototype.setVariablePositions = function(ctx) {
 StackFrame.prototype._drawSelf = function(ctx) {
     let labelWidth = this.setVariablePositions(ctx);
     let textHeight = 10; // get from ctx font
-    ctx.fillText(this._label, 0, 0);// -textHeight / 2);
+    ctx.fillText(this._label, 0, 0);
     // let w = this.getWidth();
     let w = ctx.canvas.width;
     let h = this.getHeight();
@@ -99,11 +99,12 @@ StackFrame.prototype._drawSelf = function(ctx) {
     ctx.fillRect(0, textHeight / 2, labelWidth, this.getHeight());
 };
 
-var AnimInterpreter = function(parent, aprog = []) {
+var AnimInterpreter = function(endCallback, parent, aprog = []) {
     Drawable.call(this, parent);
     this.setProg(aprog);
     this._frame_stack = [];
     this.init();
+    this._endCallback = endCallback;
 };
 
 AnimInterpreter.prototype = Object.create(Drawable.prototype);
@@ -344,13 +345,21 @@ AnimInterpreter.prototype._interpCom = function(com) {
 
 AnimInterpreter.prototype.stepForward = function() {
     if (this._pc >= this._aprog.length) {
-	this._setActiveLine(-1);
 	return;
     }
     console.log("stepping. pc = " + this._pc);
     this._interpCom(this._aprog[this._pc]);
     this._pc++;
+
+    if (this._pc == this._aprog.length) {
+	this._setActiveLine(-1);
+	this._endCallback();
+    }
 };
+
+AnimInterpreter.prototype.isDone = function() {
+    return this._pc >= this._aprog.length;
+}
 
 AnimInterpreter.prototype._skipTo = function(i) {
     while (this._pc < i) {
@@ -542,7 +551,7 @@ Variable.prototype._drawSelf = function(ctx) {
     // draw label
     //let labelWidth = ctx.measureText(this._label).width;
     ctx.fillText(this._label, -MIN_CELL_WIDTH / 2 // need single cell width
-		 - this.getLabelWidth(ctx) - 6, 0);
+		 - this.getLabelWidth(ctx) - 6, 2.5);
 }
 
 
@@ -726,23 +735,6 @@ var ary = sexp("(foo bar 'string with spaces' 1 (2 3 4))");
 
 var Interp = require('./animinterp.js');
 
-function arr_to_string(arr) {
-    let str = "";
-    str += '[';
-    for (let i = 0; i < arr.length; i++) {
-	if (Array.isArray(arr[i])) {
-	    str += arr_to_string(arr[i]);
-	}
-	else {
-	    str += arr[i].toString();
-	}
-	if (i < arr.length - 1) {
-	    str += ", ";
-	}
-    }
-    return str + ']';
-}
-
 function startEdit() {
     $("#canvas").css("display", "none");
     $("#editbutton").css("display", "none");
@@ -754,6 +746,8 @@ function startEdit() {
     $("#slowerbutton").css("display", "none");
     $("#resetbutton").css("display", "none");
     $("#cancelbutton").css("display", "none");
+    $("#status").css("display", "none");
+    $("#stepinterval").css("display", "none");
 
     $("#gobutton").css("display", "inline");
 
@@ -784,6 +778,9 @@ function startAnimation(aprog) {
     $("#stepbutton").css("display", "inline");
     $("#backbutton").css("display", "inline");
     $("#resetbutton").css("display", "inline");
+    $("#status").css("display", "block");
+
+    $("#status").text("Paused");
 
     $("#feedback").html("Ready.<br>Press 'Play' to start the animation or 'Step' to go one step at a time.<br>Press 'Edit' to end the animation and return to editing the program.");
 }
@@ -794,9 +791,13 @@ function startAutoplay() {
     $("#stopbutton").css("display", "inline");
     $("#fasterbutton").css("display", "inline");
     $("#slowerbutton").css("display", "inline");
+    $("#stepinterval").css("display", "inline");
 
+    $("#playbutton").css("display", "none");
     $("#stepbutton").css("display", "none");
     $("#backbutton").css("display", "none");
+
+    $("#status").text("Playing");
 }
 
 function stopAutoplay() {
@@ -805,14 +806,23 @@ function stopAutoplay() {
     $("#stopbutton").css("display", "none");
     $("#fasterbutton").css("display", "none");
     $("#slowerbutton").css("display", "none");
+    $("#stepinterval").css("display", "none");
 
+    $("#playbutton").css("display", "inline");
     $("#stepbutton").css("display", "inline");
     $("#backbutton").css("display", "inline");
+
+    $("#status").text("Paused");
 }
 
 
 function errorMsg(msg) {
     $("#feedback").html(msg);
+}
+
+function updateStepInterval() {
+    $("#stepinterval").text("Step interval: " +
+			    interpreter.getAutoplayPeriod()+ "ms");   
 }
 
 function createWorker() {
@@ -887,10 +897,16 @@ function compile () {
     })
 }
 
+function setPlayDisabled(b) {
+    $("#playbutton").prop('disabled', b);
+    $("#stepbutton").prop('disabled', b);
+}
+
 function init() {
     $("#gobutton").click(function() {
 	startCompile();
 	compile();
+	setPlayDisabled(false);
     });
 
     $("#cancelbutton").click(function() {
@@ -910,10 +926,13 @@ function init() {
 
     $("#resetbutton").click(function() {
 	interpreter.reset();
+	setPlayDisabled(false);
     });
 
     $("#playbutton").click(function() {
-	startAutoplay();
+	if (!interpreter.isDone()) {
+	    startAutoplay();
+	}
     });
 
     $("#stopbutton").click(function() {
@@ -921,18 +940,29 @@ function init() {
     });
 
     $("#fasterbutton").click(function() {
-	let cur_period = interpreter.getAutoplayPeriod();
+	let cur_period = interpreter.getAutoplayPeriod();	    
 	interpreter.setAutoplayPeriod(Math.max(1, cur_period - 50));
+	updateStepInterval();
     });
 
     $("#slowerbutton").click(function() {
 	let cur_period = interpreter.getAutoplayPeriod();
-	interpreter.setAutoplayPeriod(cur_period + 50);
+	if (cur_period === 1) {
+	    interpreter.setAutoplayPeriod(50);
+	}
+	else {
+	    interpreter.setAutoplayPeriod(cur_period + 50);
+	}
+	updateStepInterval();
     });
 
     $("#backbutton").click(function() {
 	interpreter.stepBack();
+	$("#status").text("Paused");
+	setPlayDisabled(false);
     });
+
+    updateStepInterval();
     
     let ctx = document.getElementById('canvas').getContext('2d');
     Puddi.run(ctx);
@@ -946,7 +976,13 @@ function init() {
     editor.session.setUseWorker(false); // disable errors/warnings
 }
 
-var interpreter = new Interp();
+function programEndCallback() {
+    stopAutoplay();
+    $("#status").text("Finished");
+    setPlayDisabled(true);
+}
+
+var interpreter = new Interp(programEndCallback);
 
 init();
 

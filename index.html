@@ -22,6 +22,20 @@
 	z-index: 1;
 	}
 
+	#status {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 600px;
+	<!-- margin: 0 auto; -->
+	margin-bottom: 0px;
+	margin-top: 50px;
+	margin-left: 560px;
+	text-align: center;
+	font-weight: bold;
+	display: none;
+	}
+
 	#canvas {
 	position: absolute;
 	top: 0;
@@ -38,41 +52,9 @@
 	z-index: 3;
 	}
 
-	<!-- #editbutton { -->
-	<!-- position: relative; -->
-	<!-- display: none; -->
-	<!-- z-index: 3; -->
-	<!-- } -->
-
-	<!-- #playbutton { -->
-	<!-- position: relative; -->
-	<!-- display: none; -->
-	<!-- z-index: 3; -->
-	<!-- } -->
-
-	<!-- #stepbutton { -->
-	<!-- position: relative; -->
-	<!-- display: none; -->
-	<!-- z-index: 3; -->
-	<!-- } -->
-
-	<!-- #backbutton { -->
-	<!-- position: relative; -->
-	<!-- display: none; -->
-	<!-- z-index: 3; -->
-	<!-- } -->
-
-	<!-- #fasterbutton { -->
-	<!-- position: relative; -->
-	<!-- display: none; -->
-	<!-- z-index: 3; -->
-	<!-- } -->
-
-	<!-- #slowerbutton { -->
-	<!-- position: relative; -->
-	<!-- display: none; -->
-	<!-- z-index: 3; -->
-	<!-- } -->
+	#stepinterval {
+	font-size: 10px;
+	}
 
 	.lineMarker {
 	position: absolute;
@@ -121,6 +103,7 @@
 	<!--   editor.session.setMode("ace/mode/javascript"); -->
 	<!-- </script> -->
 
+	<div id="status"></div>
 	<canvas id="canvas" width="600" height="600"></canvas>
 	
 	<button type="button" id="gobutton" class="myButton">Go</button>
@@ -133,6 +116,7 @@
 	<button type="button" id="backbutton" class="myButton">Back</button>
 	<button type="button" id="stepbutton" class="myButton">Step</button>
 	<button type="button" id="resetbutton" class="myButton">Reset</button>
+	<div id="stepinterval" class="myButton"></div>
 
 	<div id="feedback"></div>
 	

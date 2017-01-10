@@ -14,23 +14,6 @@ var ary = sexp("(foo bar 'string with spaces' 1 (2 3 4))");
 
 var Interp = require('./animinterp.js');
 
-function arr_to_string(arr) {
-    let str = "";
-    str += '[';
-    for (let i = 0; i < arr.length; i++) {
-	if (Array.isArray(arr[i])) {
-	    str += arr_to_string(arr[i]);
-	}
-	else {
-	    str += arr[i].toString();
-	}
-	if (i < arr.length - 1) {
-	    str += ", ";
-	}
-    }
-    return str + ']';
-}
-
 function startEdit() {
     $("#canvas").css("display", "none");
     $("#editbutton").css("display", "none");
@@ -42,6 +25,8 @@ function startEdit() {
     $("#slowerbutton").css("display", "none");
     $("#resetbutton").css("display", "none");
     $("#cancelbutton").css("display", "none");
+    $("#status").css("display", "none");
+    $("#stepinterval").css("display", "none");
 
     $("#gobutton").css("display", "inline");
 
@@ -72,6 +57,9 @@ function startAnimation(aprog) {
     $("#stepbutton").css("display", "inline");
     $("#backbutton").css("display", "inline");
     $("#resetbutton").css("display", "inline");
+    $("#status").css("display", "block");
+
+    $("#status").text("Paused");
 
     $("#feedback").html("Ready.<br>Press 'Play' to start the animation or 'Step' to go one step at a time.<br>Press 'Edit' to end the animation and return to editing the program.");
 }
@@ -82,9 +70,13 @@ function startAutoplay() {
     $("#stopbutton").css("display", "inline");
     $("#fasterbutton").css("display", "inline");
     $("#slowerbutton").css("display", "inline");
+    $("#stepinterval").css("display", "inline");
 
+    $("#playbutton").css("display", "none");
     $("#stepbutton").css("display", "none");
     $("#backbutton").css("display", "none");
+
+    $("#status").text("Playing");
 }
 
 function stopAutoplay() {
@@ -93,14 +85,23 @@ function stopAutoplay() {
     $("#stopbutton").css("display", "none");
     $("#fasterbutton").css("display", "none");
     $("#slowerbutton").css("display", "none");
+    $("#stepinterval").css("display", "none");
 
+    $("#playbutton").css("display", "inline");
     $("#stepbutton").css("display", "inline");
     $("#backbutton").css("display", "inline");
+
+    $("#status").text("Paused");
 }
 
 
 function errorMsg(msg) {
     $("#feedback").html(msg);
+}
+
+function updateStepInterval() {
+    $("#stepinterval").text("Step interval: " +
+			    interpreter.getAutoplayPeriod()+ "ms");   
 }
 
 function createWorker() {
@@ -175,10 +176,16 @@ function compile () {
     })
 }
 
+function setPlayDisabled(b) {
+    $("#playbutton").prop('disabled', b);
+    $("#stepbutton").prop('disabled', b);
+}
+
 function init() {
     $("#gobutton").click(function() {
 	startCompile();
 	compile();
+	setPlayDisabled(false);
     });
 
     $("#cancelbutton").click(function() {
@@ -198,10 +205,13 @@ function init() {
 
     $("#resetbutton").click(function() {
 	interpreter.reset();
+	setPlayDisabled(false);
     });
 
     $("#playbutton").click(function() {
-	startAutoplay();
+	if (!interpreter.isDone()) {
+	    startAutoplay();
+	}
     });
 
     $("#stopbutton").click(function() {
@@ -209,18 +219,29 @@ function init() {
     });
 
     $("#fasterbutton").click(function() {
-	let cur_period = interpreter.getAutoplayPeriod();
+	let cur_period = interpreter.getAutoplayPeriod();	    
 	interpreter.setAutoplayPeriod(Math.max(1, cur_period - 50));
+	updateStepInterval();
     });
 
     $("#slowerbutton").click(function() {
 	let cur_period = interpreter.getAutoplayPeriod();
-	interpreter.setAutoplayPeriod(cur_period + 50);
+	if (cur_period === 1) {
+	    interpreter.setAutoplayPeriod(50);
+	}
+	else {
+	    interpreter.setAutoplayPeriod(cur_period + 50);
+	}
+	updateStepInterval();
     });
 
     $("#backbutton").click(function() {
 	interpreter.stepBack();
+	$("#status").text("Paused");
+	setPlayDisabled(false);
     });
+
+    updateStepInterval();
     
     let ctx = document.getElementById('canvas').getContext('2d');
     Puddi.run(ctx);
@@ -234,6 +255,12 @@ function init() {
     editor.session.setUseWorker(false); // disable errors/warnings
 }
 
-var interpreter = new Interp();
+function programEndCallback() {
+    stopAutoplay();
+    $("#status").text("Finished");
+    setPlayDisabled(true);
+}
+
+var interpreter = new Interp(programEndCallback);
 
 init();

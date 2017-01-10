@@ -75,7 +75,7 @@ StackFrame.prototype.setVariablePositions = function(ctx) {
 StackFrame.prototype._drawSelf = function(ctx) {
     let labelWidth = this.setVariablePositions(ctx);
     let textHeight = 10; // get from ctx font
-    ctx.fillText(this._label, 0, 0);// -textHeight / 2);
+    ctx.fillText(this._label, 0, 0);
     // let w = this.getWidth();
     let w = ctx.canvas.width;
     let h = this.getHeight();
@@ -98,11 +98,12 @@ StackFrame.prototype._drawSelf = function(ctx) {
     ctx.fillRect(0, textHeight / 2, labelWidth, this.getHeight());
 };
 
-var AnimInterpreter = function(parent, aprog = []) {
+var AnimInterpreter = function(endCallback, parent, aprog = []) {
     Drawable.call(this, parent);
     this.setProg(aprog);
     this._frame_stack = [];
     this.init();
+    this._endCallback = endCallback;
 };
 
 AnimInterpreter.prototype = Object.create(Drawable.prototype);
@@ -343,13 +344,21 @@ AnimInterpreter.prototype._interpCom = function(com) {
 
 AnimInterpreter.prototype.stepForward = function() {
     if (this._pc >= this._aprog.length) {
-	this._setActiveLine(-1);
 	return;
     }
     console.log("stepping. pc = " + this._pc);
     this._interpCom(this._aprog[this._pc]);
     this._pc++;
+
+    if (this._pc == this._aprog.length) {
+	this._setActiveLine(-1);
+	this._endCallback();
+    }
 };
+
+AnimInterpreter.prototype.isDone = function() {
+    return this._pc >= this._aprog.length;
+}
 
 AnimInterpreter.prototype._skipTo = function(i) {
     while (this._pc < i) {
