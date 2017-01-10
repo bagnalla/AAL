@@ -1,0 +1,2 @@
+# AAL
+Array Animation Language
