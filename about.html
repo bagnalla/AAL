@@ -5,67 +5,78 @@
       .indent {
       text-indent: 40px
       }
+      #content {
+      width: 750px;
+      text-align: left;
+      margin: auto;
+      }
+      h1 { text-align: center; }
+      h2 { text-align: center; }
+      h4 { text-align: center; }
+      footer { text-align: center; }
     </style>
     <title>About AAL</title>
-    <strong>Array Animation Language</strong> (AAL) is a small, imperative, strongly-typed programming language that is designed for visualizing algorithms on array data structures.<br><br>
-    AAL programs are compiled to an intermediate language (or instruction set) that describe how to animate the program.<br><br>
-    Included in the online version is
-    <ol> <li> a Javascript implementation of the compiler </li>
-      <li> an animation runtime to run the compiled programs using HTML5 Canvas </li>
-      </ol>
   </head>
   <body>
-    <p>
-      <h2>Keywords</h2>
-      array, def, while, if, else, int, string, bool, unit, tt, T, return
-    </p>
-    <p>
-      <h2>Types</h2>
-      The set of types is given by the following inductive definition:<br><br>
-      t ::=<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;unit<br>
-      &nbsp;&nbsp;| bool<br>
-      &nbsp;&nbsp;| int<br>
-      &nbsp;&nbsp;| string<br>
-      &nbsp;&nbsp;| array t
-      <br><br>
-      Integers are 32 bits. 'unit' is the type with only one value: 'tt' (like in ML). Note that there is no 'char' type - only string.
-    </p>
-    <p>
-      <h2>Operators</h2>
-      <table>
-	<col width="50">
-      <tr><td><strong>!</strong></td><td>boolean negation</td></tr>
-      <tr><td><strong>+</strong></td><td>integer addition and string concatenation</td></tr>
-      <tr><td><strong>-</strong></td><td>integer subtraction</td></tr>
-      <tr><td><strong>*</strong></td><td>integer multiplication</td></tr>
-      <tr><td><strong>/</strong></td><td>integer division</td></tr>
-      <tr><td><strong>&&</strong></td><td>logical AND</td></tr>
-      <tr><td><strong>||</strong></td><td>logical OR</td></tr>
-      <tr><td><strong><</strong></td><td>less-than</td></tr>
-      <tr><td><strong>></strong></td><td>greater-than</td></tr>
-      <tr><td><strong><=</strong></td><td>less-than-or-equal</td></tr>
-      <tr><td><strong>>=</strong></td><td>greater-than-or-equal</td></tr>
-      <tr><td><strong>==</strong></td><td>equal to</td></tr>
-      <tr><td><strong>=</strong></td><td>assignment</td></tr>
-      </table>
-      <h2>Syntax</h2>
-      The syntax is mostly based on C and can be seen easily in the example programs. But there are a few differences:
-      <ul>
-	<li>
-	  Function definitions begin with the 'def' keyword. Type annotations are in ML style, and must always be provided (no type reconstruction/inference).
-	</li>
-	<li>
-	  Currently, branches of if/else statements must always be enclosed in curly braces.
-	</li>
-	<li>
-	  Function calls can be annotated with an explicit type parameter using the '@' syntax. See the 'Parametric Polymorphism' section.
-	</li>
-      </ul>
-    </p>
-    <p>
-      <h2>Semantics</h2>
-      <h4>Variables</h4>
+    <div id="content" align="center">
+      <h1>About AAL</h1>
+      <strong>Array Animation Language</strong> (AAL) is a small, imperative, strongly-typed programming language that is designed for visualizing algorithms on array data structures.<br><br>
+      AAL programs are compiled to an intermediate language (or instruction set) that describe how to animate the program.<br><br>
+      Included in the online version is
+      <ol> <li> a Javascript implementation of the compiler </li>
+	<li> an animation runtime to run the compiled programs using HTML5 Canvas </li>
+      </ol>
+      <p>
+	<h2>Keywords</h2>
+	array, def, while, if, else, int, string, bool, unit, tt, T, return
+      </p>
+      <p>
+	<h2>Types</h2>
+	The set of types is given by the following inductive definition:<br><br>
+	t ::=<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;unit<br>
+	&nbsp;&nbsp;| bool<br>
+	&nbsp;&nbsp;| int<br>
+	&nbsp;&nbsp;| string<br>
+	&nbsp;&nbsp;| array t
+	<br><br>
+	Integers are 32 bits. 'unit' is the type with only one value: 'tt' (like in ML). Note that there is no 'char' type - only string.
+      </p>
+      <p>
+	<h2>Operators</h2>
+	<table>
+	  <col width="50">
+	  <tr><td><strong>!</strong></td><td>boolean negation</td></tr>
+	  <tr><td><strong>+</strong></td><td>integer addition and string concatenation</td></tr>
+	  <tr><td><strong>-</strong></td><td>integer subtraction</td></tr>
+	  <tr><td><strong>*</strong></td><td>integer multiplication</td></tr>
+	  <tr><td><strong>/</strong></td><td>integer division</td></tr>
+	  <tr><td><strong>&&</strong></td><td>logical AND</td></tr>
+	  <tr><td><strong>||</strong></td><td>logical OR</td></tr>
+	  <tr><td><strong><</strong></td><td>less-than</td></tr>
+			    <tr><td><strong>></strong></td><td>greater-than</td></tr>
+	  <tr><td><strong><=</strong></td><td>less-than-or-equal</td></tr>
+			    <tr><td><strong>>=</strong></td><td>greater-than-or-equal</td></tr>
+	  <tr><td><strong>==</strong></td><td>equal to</td></tr>
+	  <tr><td><strong>=</strong></td><td>assignment</td></tr>
+	</table>
+	<h2>Syntax</h2>
+	The syntax is mostly based on C and can be seen easily in the example programs. But there are a few differences:
+	<ul>
+	  <li>
+	    Function definitions begin with the 'def' keyword. Type annotations are in ML style, and must always be provided (no type reconstruction/inference).
+	  </li>
+	  <li>
+	    Currently, branches of if/else statements must always be enclosed in curly braces.
+	  </li>
+	  <li>
+	    Function calls can be annotated with an explicit type parameter using the '@' syntax. See the 'Parametric Polymorphism' section.
+	  </li>
+	</ul>
+      </p>
+      <p>
+	<h2>Semantics</h2>
+	<h4>Variables</h4>
       <p class="indent">
 	All variables are stack-allocated. At the beginning of each function invocation (including the main), all of the function's formal parameters and local variables are allocated on the new stack frame and given appropriate initial values. The scope of a variable is the entire function in which it resides, no matter where it appears inside the function body.
       </p>
@@ -73,87 +84,89 @@
 	Explicit variable declarations are not necessary (or even possible). Simply assigning a value to an identifier will declare a variable with the type of the value being assigned (similar to Python, but strongly-typed). Variables can contain values of the basic types (bool, int, string) or arrays.
       </p>
       <h4>Arrays</h4>
-    <p class="indent">
-      Arrays are homogeneous. That is, all values in an array must have the same type. Arrays can, however, contain other arrays. Arrays be be created either with the array literal syntax (e.g., A = [a1, ..., an]) or with the intrinsic 'create' function provided by the compiler. Creating an empty array using 'create' is the only situation in which explicit type parameter annotation is strictly necessary.
-    </p>
+      <p class="indent">
+	Arrays are homogeneous. That is, all values in an array must have the same type. Arrays can, however, contain other arrays. Arrays be be created either with the array literal syntax (e.g., A = [a1, ..., an]) or with the intrinsic 'create' function provided by the compiler. Creating an empty array using 'create' is the only situation in which explicit type parameter annotation is strictly necessary.
+      </p>
       <h4>User-defined Functions</h4>
-    <p class="indent">
-      All function declarations must be at the beginning of the program. Arguments are passed by value by default (a copy is made on the newly allocated stack frame) but they can be passed by reference by appending '&' at the end of the type annotation. Here is an example function that takes an int parameter by reference and increments it:
-    </p>
-    def inc (x : int &) : unit {<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;x = x + 1;<br>
-    }
-    <p class="indent">
-      When a function is called as a standalone command (it's return value is not being used) the compiler enforces that its type is 'unit'.
-    </p>
-    <p class="indent">
-      All functions may call themselves or other functions (mutually) recursively. 
-    </p>
-    <h4>Parametric Polymorphism</h4>
-    <p class="indent">
-      The special type 'T' can be used in place of actual types in the formal parameters and return types of function definitions. This provides a limited form of parametric polymorphism (there can only be one type parameter per function definition). A polymorphic function will typecheck successfully if its polymorphic arguments are used in a way that is compatible with all types (the intrinsic functions listed below are polymorphic and thus compatible with all types).
-    </p>
-    <p class="indent">
-      Generally, when a polymorphic function is called, the types of the arguments being passed can be used to determine the actual type to instantiate T with. If there are no such arguments, then the type must be explicitly provided using the '@' syntax. See the 'create' intrinsic function below.
-    </p>
-    <h4>Intrinsic Functions</h4>
-    <p class="indent">
-      The following functions are built in:
-      <ul>
-	<li><strong>create</strong><br>
-	  Parameters: none<br>
-	  Returns: an empty array of type 'array T'<br><br>
-	  Since this function takes no arguments, the type parameter T can't be inferred. Thus, it must be provided via an explicit annotation. e.g., an empty int array can be created with the expression 'create@int()'.</li><br>
-	<li><strong>at</strong><br>
-	  Parameters: <em>A</em> : array T, <em>i</em> : int<br>
-	  Returns: the element of <em>A</em> at position <em>i</em>.
-	</li><br>
-	<li><strong>set</strong><br>
-	  Parameters: <em>A</em> : array T, <em>i</em> : int, <em>x</em> : T<br>
-	  Returns: tt : unit<br>
-	  Set the element of <em>A</em> at position <em>i</em> to the value <em>x</em>.
-	</li><br>
-	<li><strong>insert</strong><br>
-	  Parameters: <em>A</em> : array T, <em>i</em> : int, <em>x</em> : T<br>
-	  Returns: tt : unit<br>
-	  Inserts the value <em>x</em> at position <em>i</em> in array <em>A</em>.
-	</li><br>
-	<li><strong>delete</strong><br>
-	  Parameters: <em>A</em> : array T, <em>i</em> : int<br>
-	  Returns: tt : unit<br>
-	  Deletes the element of <em>A</em> at position <em>i</em>.
-	</li><br>
-	<li><strong>size</strong><br>
-	  Parameters: <em>A</em> : array T<br>
-	  Returns: the number of elements in <em>A</em> (int).
-	</li><br>
-	<li><strong>swap</strong><br>
-	  Parameters: <em>A</em> : array T, <em>i1</em> : int, 
-<em>i2</em> : int<br>
-	  Returns: tt : unit<br>
-	  Swaps the elements of <em>A</em> at positions <em>i1</em> and
-<em>i2</em>
+      <p class="indent">
+	All function declarations must be at the beginning of the program. Arguments are passed by value by default (a copy is made on the newly allocated stack frame) but they can be passed by reference by appending '&' at the end of the type annotation. Here is an example function that takes an int parameter by reference and increments it:
+      </p>
+      def inc (x : int &) : unit {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;x = x + 1;<br>
+      }
+      <p class="indent">
+	When a function is called as a standalone command (it's return value is not being used) the compiler enforces that its type is 'unit'.
+      </p>
+      <p class="indent">
+	All functions may call themselves or other functions (mutually) recursively. 
+      </p>
+      <h4>Parametric Polymorphism</h4>
+      <p class="indent">
+	The special type 'T' can be used in place of actual types in the formal parameters and return types of function definitions. This provides a limited form of parametric polymorphism (there can only be one type parameter per function definition). A polymorphic function will typecheck successfully if its polymorphic arguments are used in a way that is compatible with all types (the intrinsic functions listed below are polymorphic and thus compatible with all types).
+      </p>
+      <p class="indent">
+	Generally, when a polymorphic function is called, the types of the arguments being passed can be used to determine the actual type to instantiate T with. If there are no such arguments, then the type must be explicitly provided using the '@' syntax. See the 'create' intrinsic function below.
+      </p>
+      <h4>Intrinsic Functions</h4>
+      <p class="indent">
+	The following functions are built in:
+	<ul>
+	  <li><strong>create</strong><br>
+	    Parameters: none<br>
+	    Returns: an empty array of type 'array T'<br><br>
+	    Since this function takes no arguments, the type parameter T can't be inferred. Thus, it must be provided via an explicit annotation. e.g., an empty int array can be created with the expression 'create@int()'.</li><br>
+	  <li><strong>at</strong><br>
+	    Parameters: <em>A</em> : array T, <em>i</em> : int<br>
+	    Returns: the element of <em>A</em> at position <em>i</em>.
 	  </li><br>
-	<li><strong>concat</strong><br>
-	  Parameters: <em>A</em> : array T, <em>B</em> : array T<br>
-	  Returns: a new array that contains the elements of <em>A</em> followed by the elements of <em>B</em>.
+	  <li><strong>set</strong><br>
+	    Parameters: <em>A</em> : array T, <em>i</em> : int, <em>x</em> : T<br>
+	    Returns: tt : unit<br>
+	    Set the element of <em>A</em> at position <em>i</em> to the value <em>x</em>.
 	  </li><br>
-	<li><strong>clear</strong><br>
-	  Parameters: <em>A</em> : array T<br>
-	  Returns: tt : unit<br>
-	  Removes all elements from <em>A</em>.
-	</li>
-      </ul>
-    </p>
-    <p>
-      <h2>Implementation</h2>
-    <p class="indent">
-      The "compiler" is written entirely in <a href="https://ocaml.org/">OCaml</a> and uses OCamllex, Menhir, and Batteries. It's maybe a bit disingenuous to call it a compiler, since it's really just an AST interpreter that evaluates the program and produces animation step instructions as it goes. It's compiled to Javascript using <a href="https://ocsigen.org/js_of_ocaml/">js_of_ocaml</a> and executed in an HTML5 Web Worker.
-    </p>
-    <p class="indent">
-      The code editor is <a href="https://ace.c9.io/">Ace</a>. The animation runtime is written in Javascript using a custom thin layer over HTML5 Canvas.
-    </p>
-    </p>
+	  <li><strong>insert</strong><br>
+	    Parameters: <em>A</em> : array T, <em>i</em> : int, <em>x</em> : T<br>
+	    Returns: tt : unit<br>
+	    Inserts the value <em>x</em> at position <em>i</em> in array <em>A</em>.
+	  </li><br>
+	  <li><strong>delete</strong><br>
+	    Parameters: <em>A</em> : array T, <em>i</em> : int<br>
+	    Returns: tt : unit<br>
+	    Deletes the element of <em>A</em> at position <em>i</em>.
+	  </li><br>
+	  <li><strong>size</strong><br>
+	    Parameters: <em>A</em> : array T<br>
+	    Returns: the number of elements in <em>A</em> (int).
+	  </li><br>
+	  <li><strong>swap</strong><br>
+	    Parameters: <em>A</em> : array T, <em>i1</em> : int, 
+	    <em>i2</em> : int<br>
+	    Returns: tt : unit<br>
+	    Swaps the elements of <em>A</em> at positions <em>i1</em> and
+	    <em>i2</em>
+	  </li><br>
+	  <li><strong>concat</strong><br>
+	    Parameters: <em>A</em> : array T, <em>B</em> : array T<br>
+	    Returns: a new array that contains the elements of <em>A</em> followed by the elements of <em>B</em>.
+	  </li><br>
+	  <li><strong>clear</strong><br>
+	    Parameters: <em>A</em> : array T<br>
+	    Returns: tt : unit<br>
+	    Removes all elements from <em>A</em>.
+	  </li>
+	</ul>
+      </p>
+      <p>
+	<h2>Implementation</h2>
+      <p class="indent">
+	The "compiler" is written entirely in <a href="https://ocaml.org/">OCaml</a> and uses OCamllex, Menhir, and Batteries. It's maybe a bit disingenuous to call it a compiler, since it's really just an AST interpreter that evaluates the program and produces animation step instructions as it goes. It's compiled to Javascript using <a href="https://ocsigen.org/js_of_ocaml/">js_of_ocaml</a> and executed in an HTML5 Web Worker.
+      </p>
+      <p class="indent">
+	The code editor is <a href="https://ace.c9.io/">Ace</a>. The animation runtime is written in Javascript using a custom thin layer over HTML5 Canvas.
+      </p>
+      </p>
+    </div>
+    <br>
   </body>
   <footer>
     <em>

@@ -3,48 +3,31 @@
   <head>
     <title>Array Animation Language</title>
     <style type="text/css" media="screen">
-      body {
-      overflow: hidden;
-      }
+      <!-- body { -->
+      <!-- overflow: hidden; -->
+      <!-- } -->
 
       #editor {
-      <!-- position: relative !important; -->
-      position: absolute;
-      top: 100;
-      left: 0;
-      <!-- bottom: 0; -->
-      <!-- right: 0; -->
-      border: 1px solid lightgray;
-      <!-- margin: auto; -->
-      margin: 0;
-      height: 400px;
+      position: relative !important;
+      top: 0;border: 1px solid lightgray;
+      margin-top: 0px;
+      height: 485px;
       width: 545px;
       z-index: 1;
+      border-bottom: groove;
       }
 
       #status {
-      position: absolute;
+      position: relative;
       top: 0;
-      left: 0;
       width: 600px;
-      <!-- margin: 0 auto; -->
-      margin-bottom: 0px;
-      margin-top: 50px;
-      margin-left: 560px;
+      margin-top: 5px;
       text-align: center;
       font-weight: bold;
-      display: none;
       }
 
       #canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      margin: 0;
-      margin-left: 560px;
-      margin-top: 80px;
       z-index: 2;
-      display: none;
       }
 
       .myButton {
@@ -62,61 +45,85 @@
       z-index: 20
       }
 
+      h1 {
+      text-align: center;
+      }
+
       #feedback {
       width: 545px;
+      margin: auto;
+      margin-top: 10px;
+      }
+      
+      #content {
+      width: 1500px;
+      text-align: left;
+      margin: auto;
       }
       
       footer {
-      <!-- position: fixed; -->
-      <!-- top: 0; -->
-      <!-- width: 100%; -->
       height: 50px;
       margin-top: 10px;
       bottom: 0px;
-      <!-- text-align: center; -->
-      <!-- margin-bottom: 0px; -->
+      text-align: center;
+      }
+
+      table {
+      border: ridge;
+      border-width: 1px;
+      }
+
+      td {
+      vertical-align: top;
+      border: groove;
+      border-width: 1px;
       }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   </head>
   <body>
-    <h1>&nbsp;&nbsp;Array Animation Language</h1>
-    
-    <pre id="editor"></pre>
-    
-    <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
-    <!-- <script> -->
-    <!--   var editor = ace.edit("editor"); -->
-    <!--   editor.setTheme("ace/theme/twilight"); -->
-    <!--   editor.session.setMode("ace/mode/javascript"); -->
-    <!-- </script> -->
+    <div id="content">
+      <h1>Array Animation Language</h1>
+      
+      <div align="center">
+      <table border="1">
+	<tr>
+	  <td>
+	    <pre id="editor"></pre>
+	    <button type="button" id="gobutton" class="myButton">Go</button>
+	    <button type="button" id="cancelbutton" class="myButton">Cancel</button>
+	    <button type="button" id="editbutton" class="myButton">Edit</button>
+	    <button type="button" id="playbutton" class="myButton">Play</button>
+	    <button type="button" id="stopbutton" class="myButton">Stop</button>
+	    <button type="button" id="slowerbutton" class="myButton">Slower</button>
+	    <button type="button" id="fasterbutton" class="myButton">Faster</button>
+	    <button type="button" id="backbutton" class="myButton">Back</button>
+	    <button type="button" id="stepbutton" class="myButton">Step</button>
+	    <button type="button" id="resetbutton" class="myButton">Reset</button>
+	    <div id="stepinterval" class="myButton"></div>
 
-    <div id="status"></div>
-    <canvas id="canvas" width="600" height="600"></canvas>
-    
-    <button type="button" id="gobutton" class="myButton">Go</button>
-    <button type="button" id="cancelbutton" class="myButton">Cancel</button>
-    <button type="button" id="editbutton" class="myButton">Edit</button>
-    <button type="button" id="playbutton" class="myButton">Play</button>
-    <button type="button" id="stopbutton" class="myButton">Stop</button>
-    <button type="button" id="slowerbutton" class="myButton">Slower</button>
-    <button type="button" id="fasterbutton" class="myButton">Faster</button>
-    <button type="button" id="backbutton" class="myButton">Back</button>
-    <button type="button" id="stepbutton" class="myButton">Step</button>
-    <button type="button" id="resetbutton" class="myButton">Reset</button>
-    <div id="stepinterval" class="myButton"></div>
-
-    <div id="feedback"></div>
-    
-    <script src="scripts/aaljs.js"></script>
-    <script src="scripts/bundle.js"></script>
-    
-    <footer>
-      <em>
-	<a href="about.html">About AAL</a>
-	- <a href="examples.html">Example programs</a>
-	- <a href="mailto:ab667712@ohio.edu">Bugs/Comments</a>
-      </em>
-    </footer>
+	    <div id="feedback"></div>
+	  </td>
+	  <td>
+	    <div id="status">asdf</div>
+	    <canvas id="canvas" width="600" height="595"></canvas>
+	  </td>
+	</tr>
+      </table>
+      </div>
+      
+      <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+      
+      <script src="scripts/aaljs.js"></script>
+      <script src="scripts/bundle.js"></script>
+      
+      <footer>
+	<em>
+	  <a href="about.html">About AAL</a>
+	  - <a href="examples.html">Example programs</a>
+	  - <a href="mailto:ab667712@ohio.edu">Bugs/Comments</a>
+	</em>
+      </footer>
+    </div>
   </body>
 </html>

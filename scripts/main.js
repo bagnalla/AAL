@@ -15,7 +15,8 @@ var ary = sexp("(foo bar 'string with spaces' 1 (2 3 4))");
 var Interp = require('./animinterp.js');
 
 function startEdit() {
-    $("#canvas").css("display", "none");
+    $("#canvas").css("visibility", "hidden");
+    $("#status").css("visibility", "hidden");
     $("#editbutton").css("display", "none");
     $("#playbutton").css("display", "none");
     $("#stopbutton").css("display", "none");
@@ -25,7 +26,6 @@ function startEdit() {
     $("#slowerbutton").css("display", "none");
     $("#resetbutton").css("display", "none");
     $("#cancelbutton").css("display", "none");
-    $("#status").css("display", "none");
     $("#stepinterval").css("display", "none");
 
     $("#gobutton").css("display", "inline");
@@ -51,13 +51,13 @@ function startAnimation(aprog) {
     interpreter.setProg(coms);
     $("#cancelbutton").css("display", "none");
 
-    $("#canvas").css("display", "block");
+    $("#canvas").css("visibility", "visible");
+    $("#status").css("visibility", "visible");
     $("#editbutton").css("display", "inline");
     $("#playbutton").css("display", "inline");
     $("#stepbutton").css("display", "inline");
     $("#backbutton").css("display", "inline");
     $("#resetbutton").css("display", "inline");
-    $("#status").css("display", "block");
 
     $("#status").text("Paused");
 

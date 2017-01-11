@@ -5,16 +5,19 @@
     <style type="text/css" media="screen">
       .editor {
       position: relative !important;
-      <!-- position: absolute; -->
-      <!-- top: 100; -->
-      <!-- left: 0; -->
-      <!-- bottom: 0; -->
-      <!-- right: 0; -->
       border: 1px solid lightgray;
-      <!-- margin: auto; -->
-      margin: 0;
-      width: 545px;
-      <!-- z-index: 1; -->
+      margin: auto;
+      width: 520px;
+      }
+
+      body .ace_scrollbar {
+      display: none;
+      }
+
+      #content {
+      width: 750px;
+      text-align: left;
+      margin: auto;
       }
 
       #bubbleEditor {
@@ -28,9 +31,14 @@
       #mergeEditor {
       height: 300px;
       }
+
+      h2 { text-align: center; }
+
+      footer { text-align: center; }
     </style>
   </head>
   <body>
+    <div id="content">
     <p>
       <h2>Bubble Sort</h2>
       <pre id="bubbleEditor" class="editor"></pre>
@@ -102,6 +110,7 @@ insertionSort(A);\n");
 	  mergeEditor.setValue("todo");
 	  mergeEditor.session.selection.clearSelection();
     </script>
+    </div>
   </body>
   <footer>
     <em>
