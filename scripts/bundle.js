@@ -836,6 +836,12 @@ function createWorker() {
             handler (m.data.result);
 	}
     }
+    worker.onerror = function(event){
+	// throw new Error(event.message + " (" + event.filename + ":" +
+	// 		event.lineno + ")");
+	startEdit();
+	$("#feedback").text("Compiler exception: " + event.message);
+    };
     return worker;
 }
 
