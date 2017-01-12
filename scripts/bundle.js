@@ -100,7 +100,11 @@ StackFrame.prototype._drawSelf = function(ctx) {
 };
 
 let BASE_CELL_VELOCITY = 0.05;
+<<<<<<< HEAD
 // let BASE_CELL_COLOR_FADE_RATE = 0.05;
+=======
+let BASE_CELL_COLOR_FADE_RATE = 0.05;
+>>>>>>> 6ce50524fc46803a3eb23e5898c29a88287931d1
 
 var AnimInterpreter = function(endCallback, parent, aprog = []) {
     Drawable.call(this, parent);
