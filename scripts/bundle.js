@@ -99,15 +99,16 @@ StackFrame.prototype._drawSelf = function(ctx) {
     ctx.fillRect(0, textHeight / 2, labelWidth, this.getHeight());
 };
 
-let BASE_CELL_VELOCITY = 0.05;
-let BASE_CELL_COLOR_FADE_RATE = 0.05;
+let BASE_CELL_VELOCITY = 0.06;
+// let BASE_CELL_COLOR_FADE_RATE = 0.05;
 
-var AnimInterpreter = function(endCallback, parent, aprog = []) {
+var AnimInterpreter = function(endCallback, canvasHeight, parent, aprog = []) {
     Drawable.call(this, parent);
     this.setProg(aprog);
     this._frame_stack = [];
     this.init();
     this._endCallback = endCallback;
+    this._canvasHeight = canvasHeight;
 };
 
 AnimInterpreter.prototype = Object.create(Drawable.prototype);
@@ -301,6 +302,15 @@ AnimInterpreter.prototype._clear_frame_stack = function() {
     }
 };
 
+AnimInterpreter.prototype._computeFrameStackHeight = function() {
+    let h = 0;
+    for (let frame of this._frame_stack) {
+	h += frame.getHeight();
+    }
+    console.log("frame stack height: " + h);
+    return h;
+}
+
 AnimInterpreter.prototype._setActiveLine = function(lnum) {
     if (this._activeLineMarker !== null) {
 	this._editor.session.removeMarker(this._activeLineMarker);
@@ -450,7 +460,12 @@ AnimInterpreter.prototype._updateSelf = function(time_elapsed) {
 }
 
 AnimInterpreter.prototype._drawSelf = function(ctx) {
-    offset_y = 10; // font height from ctx
+    let frameStackHeight = this._computeFrameStackHeight();
+    let actualHeight = frameStackHeight +
+	this._frame_stack.length * 20; // from font height
+    let overflow = Math.max(0, actualHeight - this._canvasHeight);
+    console.log("overflow: " + overflow);
+    offset_y = 10 - overflow; // font height from ctx
     for (let frame of this._frame_stack) {
 	frame.setPosition(new Vector(0, offset_y));
 	offset_y += frame.getHeight() + 20; // get font height from ctx
@@ -777,7 +792,7 @@ function startEdit() {
 function startCompile() {
     $("#gobutton").css("display", "none");
     $("#cancelbutton").css("display", "inline");
-    $("#feedback").html("Compiling...<br>Note: if your program doesn't terminate this will run for 30 seconds before timing out and may use a lot of memory.<br>Press 'Cancel' to cancel compilation early and return to editing.");
+    $("#feedback").html("Compiling...<br>Note: if your program doesn't terminate this will run for 10 seconds before timing out and may use a lot of memory.<br>Press 'Cancel' to cancel compilation early and return to editing.");
 
     let editor = ace.edit("editor");
     editor.setReadOnly(true);
@@ -881,8 +896,8 @@ function startTimeout() {
     timeoutId = setTimeout(function() {
 	cancelWorker();
 	startEdit();
-	$("#feedback").text("Compilation timed out after 30 seconds.");
-    }, 30000);
+	$("#feedback").text("Compilation timed out after 10 seconds.");
+    }, 10000);
 }
 
 function cancelTimeout() {
@@ -1004,7 +1019,7 @@ function programEndCallback() {
     setPlayDisabled(true);
 }
 
-var interpreter = new Interp(programEndCallback);
+var interpreter = new Interp(programEndCallback, document.getElementById('canvas').height);
 
 init();
 
