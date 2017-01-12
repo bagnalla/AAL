@@ -100,7 +100,7 @@ StackFrame.prototype._drawSelf = function(ctx) {
 };
 
 let BASE_CELL_VELOCITY = 0.05;
-let BASE_CELL_COLOR_FADE_RATE = 0.05;
+// let BASE_CELL_COLOR_FADE_RATE = 0.05;
 
 var AnimInterpreter = function(endCallback, parent, aprog = []) {
     Drawable.call(this, parent);
@@ -777,7 +777,7 @@ function startEdit() {
 function startCompile() {
     $("#gobutton").css("display", "none");
     $("#cancelbutton").css("display", "inline");
-    $("#feedback").html("Compiling...<br>Note: if your program doesn't terminate this will run for 30 seconds before timing out and may use a lot of memory.<br>Press 'Cancel' to cancel compilation early and return to editing.");
+    $("#feedback").html("Compiling...<br>Note: if your program doesn't terminate this will run for 10 seconds before timing out and may use a lot of memory.<br>Press 'Cancel' to cancel compilation early and return to editing.");
 
     let editor = ace.edit("editor");
     editor.setReadOnly(true);
@@ -881,8 +881,8 @@ function startTimeout() {
     timeoutId = setTimeout(function() {
 	cancelWorker();
 	startEdit();
-	$("#feedback").text("Compilation timed out after 30 seconds.");
-    }, 30000);
+	$("#feedback").text("Compilation timed out after 10 seconds.");
+    }, 10000);
 }
 
 function cancelTimeout() {
