@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <style type="text/css" media="screen">
       .indent {
       text-indent: 40px
@@ -14,12 +15,45 @@
       h2 { text-align: center; }
       h4 { text-align: center; }
       footer { text-align: center; }
+      table {
+      border: solid 1px;
+      }
+      td {
+      text-align: left;
+      }
+      .pad {
+      padding-right: 30px;
+      }
+      .subtable {
+      border: none;
+      text-align: left;
+      }
+      .types {
+      text-align: left;
+      width: 80px;
+      margin: auto;
+      }
+
+      .operators td {
+      padding: 5px;
+      }
+
+      .exampleFunction {
+      text-align: left;
+      width: 200px;
+      margin: auto;
+      }
+
+      .intrinsics {
+      text-align: center;
+      }
     </style>
     <title>About AAL</title>
   </head>
   <body>
     <div id="content" align="center">
-      <h1>About AAL</h1>
+      <!-- <h1>About</h1> -->
+      <br>
       <strong>Array Animation Language</strong> (AAL) is a small, imperative, strongly-typed programming language that is designed for visualizing algorithms on array data structures.<br><br>
       AAL programs are compiled to a special instruction set that describe how to animate the program.<br><br>
       Included in the online version is
@@ -33,18 +67,21 @@
       <p>
 	<h2>Types</h2>
 	The set of types is given by the following inductive definition:<br><br>
+	<div class="types">
 	t ::=<br>
 	&nbsp;&nbsp;&nbsp;&nbsp;unit<br>
 	&nbsp;&nbsp;| bool<br>
 	&nbsp;&nbsp;| int<br>
 	&nbsp;&nbsp;| string<br>
 	&nbsp;&nbsp;| array t
+	</div>
 	<br><br>
 	Integers are 32 bits. 'unit' is the type with only one value: 'tt' (like in ML). Note that there is no 'char' type - only string.
       </p>
       <p>
 	<h2>Operators</h2>
-	<table>
+	<div align="center">
+	<table class="operators">
 	  <col width="50">
 	  <tr><td><strong>!</strong></td><td>boolean negation</td></tr>
 	  <tr><td><strong>+</strong></td><td>integer addition and string concatenation</td></tr>
@@ -60,6 +97,7 @@
 	  <tr><td><strong>==</strong></td><td>equal to</td></tr>
 	  <tr><td><strong>=</strong></td><td>assignment</td></tr>
 	</table>
+	</div>
 	<h2>Syntax</h2>
 	The syntax is mostly based on C and can be seen easily in the example programs. But there are a few differences:
 	<ul>
@@ -91,9 +129,11 @@
       <p class="indent">
 	All function declarations must be at the beginning of the program. Arguments are passed by value by default (a copy is made on the newly allocated stack frame) but they can be passed by reference by appending '&' at the end of the type annotation. Here is an example function that takes an int parameter by reference and increments it:
       </p>
+      <div class="exampleFunction">
       def inc (x : int &) : unit {<br>
       &nbsp;&nbsp;&nbsp;&nbsp;x = x + 1;<br>
       }
+      </div>
       <p class="indent">
 	When a function is called as a standalone command (it's return value is not being used) the compiler enforces that its type is 'unit'.
       </p>
@@ -110,52 +150,152 @@
       <h4>Intrinsic Functions</h4>
       <p class="indent">
 	The following functions are built in:
-	<ul>
-	  <li><strong>create</strong><br>
-	    Parameters: none<br>
-	    Returns: an empty array of type 'array T'<br><br>
-	    Since this function takes no arguments, the type parameter T can't be inferred. Thus, it must be provided via an explicit annotation. e.g., an empty int array can be created with the expression 'create@int()'.</li><br>
-	  <li><strong>at</strong><br>
-	    Parameters: <em>A</em> : array T, <em>i</em> : int<br>
-	    Returns: the element of <em>A</em> at position <em>i</em>.
-	  </li><br>
-	  <li><strong>set</strong><br>
-	    Parameters: <em>A</em> : array T, <em>i</em> : int, <em>x</em> : T<br>
-	    Returns: tt : unit<br>
-	    Set the element of <em>A</em> at position <em>i</em> to the value <em>x</em>.
-	  </li><br>
-	  <li><strong>insert</strong><br>
-	    Parameters: <em>A</em> : array T, <em>i</em> : int, <em>x</em> : T<br>
-	    Returns: tt : unit<br>
-	    Inserts the value <em>x</em> at position <em>i</em> in array <em>A</em>.
-	  </li><br>
-	  <li><strong>delete</strong><br>
-	    Parameters: <em>A</em> : array T, <em>i</em> : int<br>
-	    Returns: tt : unit<br>
-	    Deletes the element of <em>A</em> at position <em>i</em>.
-	  </li><br>
-	  <li><strong>size</strong><br>
-	    Parameters: <em>A</em> : array T<br>
-	    Returns: the number of elements in <em>A</em> (int).
-	  </li><br>
-	  <li><strong>swap</strong><br>
-	    Parameters: <em>A</em> : array T, <em>i1</em> : int, 
-	    <em>i2</em> : int<br>
-	    Returns: tt : unit<br>
-	    Swaps the elements of <em>A</em> at positions <em>i1</em> and
-	    <em>i2</em>
-	  </li><br>
-	  <li><strong>concat</strong><br>
-	    Parameters: <em>A</em> : array T, <em>B</em> : array T<br>
-	    Returns: a new array that contains the elements of <em>A</em> followed by the elements of <em>B</em>.
-	  </li><br>
-	  <li><strong>clear</strong><br>
-	    Parameters: <em>A</em> : array T<br>
-	    Returns: tt : unit<br>
-	    Removes all elements from <em>A</em>.
-	  </li>
-	</ul>
       </p>
+	<div id="intrinsicfunctions"></div>
+	<script type="text/javascript">
+	  let intrinsics = [
+	  {
+	  name: "create",
+	  inputnames: ["none"],
+	  inputtypes: ["n/a"],
+	  output: "an empty array of type 'array T'",
+	  info: "Since this function takes no arguments, the type parameter T can't be inferred. Thus, it must be provided via an explicit annotation. e.g., an empty int array can be created with the expression 'create@int()'."
+	  },
+	  {
+	  name: "at",
+	  inputnames: ["A", "i"],
+	  inputtypes: ["array T", "int"],
+	  output: "the element of <em>A</em> at position <em>i</em>.",
+	  info: ""
+	  },
+	  {
+	  name: "set",
+	  inputnames: ["A", "i", "x"],
+	  inputtypes: ["array T", "int", "T"],
+	  output: "tt : unit",
+	  info: "Set the element of <em>A</em> at position <em>i</em> to the value <em>x</em>."
+	  },
+	  {
+	  name: "insert",
+	  inputnames: ["A", "i", "x"],
+	  inputtypes: ["array T", "int", "T"],
+	  output: "tt : unit",
+	  info: "Insert the value <em>x</em> at position <em>i</em> in array <em>A</em>"
+	  },
+	  {
+	  name: "delete",
+	  inputnames: ["A", "i"],
+	  inputtypes: ["array T", "int"],
+	  output: "tt : unit",
+	  info: "Delete the element of <em>A</em> at position <em>i</em>."
+	  },
+	  {
+	  name: "size",
+	  inputnames: ["A"],
+	  inputtypes: ["array T"],
+	  output: "the number (int) of elements in <em>A</em>.",
+	  info: ""
+	  },
+	  {
+	  name: "swap",
+	  inputnames: ["A", "i1", "i2"],
+	  inputtypes: ["array T", "int", "int"],
+	  output: "tt : unit",
+	  info: "Swap the elements of <em>A</em> at positions <em>i1</em> and <em>i2</em>. Use this function rather than a user-defined swap operation to take advantage of the swap animation."
+	  },
+	  {
+	  name: "concat",
+	  inputnames: ["A", "B"],
+	  inputtypes: ["array T", "array T"],
+	  output: "a new array containing the elements of <em>A</em> followed by the elements of <em>B</em>.",
+	  info: ""
+	  },
+	  {
+	  name: "clear",
+	  inputnames: ["A"],
+	  inputtypes: ["array T"],
+	  output: "tt : unit",
+	  info: "Remove all elements from <em>A</em>."
+	  }
+	  ];
+	  
+	  let markup = "<ul>";
+	  
+	  for (let f of intrinsics) {
+	    markup += "<li><strong>" + f.name +
+		"</strong><br><table><tr><td>Input:</td><td><table class=\"subtable\"><tr><td>";
+	    for (let i = 0; i < f.inputnames.length; i++) {
+	      let name = f.inputnames[i];
+	      let type = f.inputtypes[i];
+              markup += "<td class=\"pad\"><em>" + name + "</em> : " + type + "</td>";
+	    }
+	    markup += "</td></tr></table></tr>";
+	    markup += "<tr><td>Output:</td><td><table class=\"subtable\"><tr><td>" + f.output +
+                        "</td></tr></table></td></tr></table><br>";
+            markup += f.info + "</li><br>";
+	  }
+	  
+	  markup += "</ul>"
+	    
+	  $(document).ready(function() {
+				$("#intrinsicfunctions").html(markup);
+				});
+	    
+	</script>
+	<!-- <ul> -->
+	<!--   <li><strong>create</strong><br> -->
+	<!--     Parameters: none<br> -->
+	<!--     Returns: an empty array of type 'array T'<br><br> -->
+	<!--     Since this function takes no arguments, the type parameter T can't be inferred. Thus, it must be provided via an explicit annotation. e.g., an empty int array can be created with the expression 'create@int()'.</li><br> -->
+	<!--   <li><strong>at</strong><br> -->
+	<!--     Parameters: <em>A</em> : array T, <em>i</em> : int<br> -->
+	<!--     Returns: the element of <em>A</em> at position <em>i</em>. -->
+	<!--   </li><br> -->
+	<!--   <li><strong>set</strong><br> -->
+
+	<!--     <table><tr><td>Input:</td><td><em>A</em> : array T</td><td> -->
+	<!-- 	  <em>i</em> : int</td><td><em>x</em> : T</td></tr></table> -->
+	<!--     <table><tr><td>Output:</td><td>tt : unit</td></tr></table><br> -->
+	<!--     Set the element of <em>A</em> at position <em>i</em> to the value <em>x</em>. -->
+
+	<!--     <\!-- Parameters: <em>A</em> : array T, <em>i</em> : int, <em>x</em> : T<br> -\-> -->
+	<!--     <\!-- Returns: tt : unit<br> -\-> -->
+	<!--     <\!-- Set the element of <em>A</em> at position <em>i</em> to the value <em>x</em>. -\-> -->
+		
+	<!--   </li><br> -->
+
+	<!--   <li><strong>insert</strong><br> -->
+	<!--     Parameters: <em>A</em> : array T, <em>i</em> : int, <em>x</em> : T<br> -->
+	<!--     Returns: tt : unit<br> -->
+	<!--     Inserts the value <em>x</em> at position <em>i</em> in array <em>A</em>. -->
+	<!--   </li><br> -->
+	<!--   <li><strong>delete</strong><br> -->
+	<!--     Parameters: <em>A</em> : array T, <em>i</em> : int<br> -->
+	<!--     Returns: tt : unit<br> -->
+	<!--     Deletes the element of <em>A</em> at position <em>i</em>. -->
+	<!--   </li><br> -->
+	<!--   <li><strong>size</strong><br> -->
+	<!--     Parameters: <em>A</em> : array T<br> -->
+	<!--     Returns: the number of elements in <em>A</em> (int). -->
+	<!--   </li><br> -->
+	<!--   <li><strong>swap</strong><br> -->
+	<!--     Parameters: <em>A</em> : array T, <em>i1</em> : int,  -->
+	<!--     <em>i2</em> : int<br> -->
+	<!--     Returns: tt : unit<br> -->
+	<!--     Swaps the elements of <em>A</em> at positions <em>i1</em> and -->
+	<!--     <em>i2</em> -->
+	<!--   </li><br> -->
+	<!--   <li><strong>concat</strong><br> -->
+	<!--     Parameters: <em>A</em> : array T, <em>B</em> : array T<br> -->
+	<!--     Returns: a new array that contains the elements of <em>A</em> followed by the elements of <em>B</em>. -->
+	<!--   </li><br> -->
+	<!--   <li><strong>clear</strong><br> -->
+	<!--     Parameters: <em>A</em> : array T<br> -->
+	<!--     Returns: tt : unit<br> -->
+	<!--     Removes all elements from <em>A</em>. -->
+	<!--   </li> -->
+	<!-- </ul> -->
+      <!-- </p> -->
       <p>
 	<h2>Implementation</h2>
       <p class="indent">
@@ -170,7 +310,7 @@
   </body>
   <footer>
     <em>
-      <a href="index.html">AAL Compiler</a>
+      <a href="index.html">Home</a>
       - <a href="examples.html">Example programs</a>
       - <a href="mailto:ab667712@ohio.edu">Bugs/Comments</a>
     </em>

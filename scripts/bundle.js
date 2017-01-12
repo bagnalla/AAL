@@ -99,6 +99,9 @@ StackFrame.prototype._drawSelf = function(ctx) {
     ctx.fillRect(0, textHeight / 2, labelWidth, this.getHeight());
 };
 
+let BASE_CELL_VELOCITY = 0.05;
+// let BASE_CELL_COLOR_FADE_RATE = 0.05;
+
 var AnimInterpreter = function(endCallback, parent, aprog = []) {
     Drawable.call(this, parent);
     this.setProg(aprog);
@@ -129,7 +132,7 @@ AnimInterpreter.prototype.init = function() {
     this._autoplay = false;
     this._autoplay_period = 1000;
     this._fast_forward = false;
-    this._cell_velocity = 0.1;
+    this._cell_velocity = BASE_CELL_VELOCITY;
 };
 
 AnimInterpreter.prototype._createCell = function(parent, value) {
@@ -312,6 +315,10 @@ AnimInterpreter.prototype._setActiveLine = function(lnum) {
     }
 };
 
+AnimInterpreter.prototype._lnum_of_com = function(com) {
+    return com[1][1];
+}
+
 AnimInterpreter.prototype._interpCom = function(com) {
     console.log("interpreting " + com[0]);
     // console.log(com[1]);
@@ -322,18 +329,18 @@ AnimInterpreter.prototype._interpCom = function(com) {
     case "CFrameBegin":
 	var flabel = com[1][0];
 	var lnum = com[1][1];
-	this._setActiveLine(lnum);
+	// this._setActiveLine(lnum);
 	this._addFrame(flabel);
 	break;
     case "CFrameEnd":
 	lnum = com[1];
-	this._setActiveLine(lnum);
+	// this._setActiveLine(lnum);
 	this._deleteFrame();
 	break;
     case "CStep":
 	let instrs = com[1][0];
 	lnum = com[1][1];
-	this._setActiveLine(lnum);
+	// this._setActiveLine(lnum);
 	for (let instr of instrs) {
 	    this._interpInstr(instr);
 	}
@@ -354,6 +361,10 @@ AnimInterpreter.prototype.stepForward = function() {
     if (this._pc == this._aprog.length) {
 	this._setActiveLine(-1);
 	this._endCallback();
+    }
+    else {
+	let lnum = this._lnum_of_com(this._aprog[this._pc]);
+	this._setActiveLine(lnum);
     }
 };
 
@@ -408,7 +419,7 @@ AnimInterpreter.prototype.getAutoplayPeriod = function() {
 
 AnimInterpreter.prototype.setAutoplayPeriod = function(p) {
     this._autoplay_period = p;
-    this._updateCellVelocity(Math.min(1, 100 / this._autoplay_period));
+    this._updateCellVelocity(Math.min(1, (BASE_CELL_VELOCITY * 1000) / this._autoplay_period));
 };
 
 AnimInterpreter.prototype.getAutoplay = function() { return this._autoplay; };
@@ -416,10 +427,10 @@ AnimInterpreter.prototype.getAutoplay = function() { return this._autoplay; };
 AnimInterpreter.prototype.setAutoplay = function(a) {
     this._autoplay = a;
     if (a) {
-	this._updateCellVelocity(Math.min(1, 100 / this._autoplay_period));
+	this._updateCellVelocity(Math.min(1, (BASE_CELL_VELOCITY * 1000) / this._autoplay_period));
     }
     else {
-	this._updateCellVelocity(0.1);
+	this._updateCellVelocity(BASE_CELL_VELOCITY);
     }
 };
 
@@ -458,7 +469,7 @@ var Vector = require('victor');
 var MIN_CELL_WIDTH = 25;
 var MIN_CELL_HEIGHT = 25;
 var DEFAULT_CELL_VELOCITY = 0.1;
-var COLOR_FADE_RATE = 0.005;
+// var BASE_COLOR_FADE_RATE = 0.005;
 
 function Cell(parent, value = "") {
     Drawable.call(this, parent);
@@ -469,6 +480,7 @@ function Cell(parent, value = "") {
     this._redStrength = 0.0;
     this._greenStrength = 0.0;
     this._blueStrength = 0.0;
+    // this._fade_rate = BASE_COLOR_FADE_RATE;
 }
 
 Cell.prototype = Object.create(Drawable.prototype);
@@ -484,9 +496,13 @@ Cell.prototype.flashRed = function() { this._redStrength = 1.0; };
 Cell.prototype.flashGreen = function() { this._greenStrength = 1.0; };
 Cell.prototype.flashBlue = function() { this._blueStrength = 1.0; };
 
+Cell.prototype.setFadeRate = function(fr) {
+    
+}
+
 Cell.prototype._updateSelf = function(time_elapsed) {
     // do stuff
-    let fade = COLOR_FADE_RATE * time_elapsed;
+    let fade = this._velocity / 50 * time_elapsed;
     this._redStrength -= fade;
     this._greenStrength -= fade;
     this._blueStrength -= fade;
@@ -761,7 +777,7 @@ function startEdit() {
 function startCompile() {
     $("#gobutton").css("display", "none");
     $("#cancelbutton").css("display", "inline");
-    $("#feedback").html("Compiling...<br>Note: if your program doesn't terminate this will run for 30 seconds before timing out and may use a lot of memory.<br>Press 'Cancel' to cancel compilation early and return to editing.");
+    $("#feedback").html("Compiling...<br>Note: if your program doesn't terminate this will run for 10 seconds before timing out and may use a lot of memory.<br>Press 'Cancel' to cancel compilation early and return to editing.");
 
     let editor = ace.edit("editor");
     editor.setReadOnly(true);
@@ -865,8 +881,8 @@ function startTimeout() {
     timeoutId = setTimeout(function() {
 	cancelWorker();
 	startEdit();
-	$("#feedback").text("Compilation timed out after 30 seconds.");
-    }, 30000);
+	$("#feedback").text("Compilation timed out after 10 seconds.");
+    }, 10000);
 }
 
 function cancelTimeout() {
