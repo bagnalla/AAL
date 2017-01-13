@@ -1019,7 +1019,8 @@ function programEndCallback() {
     setPlayDisabled(true);
 }
 
-var interpreter = new Interp(programEndCallback, document.getElementById('canvas').height);
+var interpreter = new Interp(programEndCallback,
+			     document.getElementById('canvas').height);
 
 init();
 

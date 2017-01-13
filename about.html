@@ -54,11 +54,12 @@
     <div id="content" align="center">
       <!-- <h1>About</h1> -->
       <br>
-      <strong>Array Animation Language</strong> (AAL) is a small, imperative, strongly-typed programming language that is designed for visualizing algorithms on array data structures.<br><br>
-      AAL programs are compiled to a special instruction set that describe how to animate the program.<br><br>
+      <strong>Array Animation Language</strong> (AAL) is a small, strongly-typed, imperative language designed for visualizing algorithms on array data structures.<br><br>
+      AAL programs are compiled to a special instruction set that describes how to animate them.<br><br>
       Included in the online version is
-      <ol> <li> a Javascript implementation of the compiler </li>
-	<li> an animation runtime to run the compiled programs using HTML5 Canvas </li>
+      <ol>
+	<li>a Javascript implementation of the compiler</li>
+	<li>an animation runtime to run the compiled programs using HTML5 Canvas</li>
       </ol>
       <p>
 	<h2>Keywords</h2>
@@ -123,7 +124,7 @@
       </p>
       <h4>Arrays</h4>
       <p class="indent">
-	Arrays are homogeneous. That is, all values in an array must have the same type. Arrays can, however, contain other arrays. Arrays be be created either with the array literal syntax (e.g., A = [a1, ..., an]) or with the intrinsic 'create' function provided by the compiler. Creating an empty array using 'create' is the only situation in which explicit type parameter annotation is strictly necessary.
+	Arrays are homogeneous. That is, all values in an array must have the same type. Arrays can, however, contain other arrays. Arrays be be created either with the array literal syntax (e.g., A = [a1, ..., an]) or with the built-in 'create' function. Creating an empty array using 'create' is the only situation in which explicit type parameter annotation is strictly necessary.
       </p>
       <h4>User-defined Functions</h4>
       <p class="indent">
@@ -135,7 +136,7 @@
       }
       </div>
       <p class="indent">
-	When a function is called as a standalone command (it's return value is not being used) the compiler enforces that its type is 'unit'.
+	Functions with a return type other than 'unit' must terminate every control flow path with a return command. Explicitly returning the unit value 'tt' from functions with return type 'unit' is allowed, but not required. When a function is called as a standalone command (it's return value is not being used) its return type must be 'unit'.
       </p>
       <p class="indent">
 	All functions may call themselves or other functions (mutually) recursively. 
@@ -149,7 +150,7 @@
       </p>
       <h4>Intrinsic Functions</h4>
       <p class="indent">
-	The following functions are built in:
+	The following functions are built-in:
       </p>
 	<div id="intrinsicfunctions"></div>
 	<script type="text/javascript">
