@@ -64,8 +64,8 @@
     while !(n == 0) {\n\
         new_n = 0;\n\
         i = 1;\n\
-        while (i < n) {\n\
-            if (A[i-1] > A[i]) {\n\
+        while i < n {\n\
+            if A[i-1] > A[i] {\n\
                 swap(A, i-1, i);\n\
                 new_n = i;\n\
             }\n\
@@ -88,9 +88,9 @@ bubbleSort(A);\n");
 	insertionEditor.setReadOnly(true);
 	insertionEditor.setValue("def insertionSort (A : T array &) : unit {\n\
     i = 1;\n\
-    while (i < size(A)) {\n\
+    while i < size(A) {\n\
         j = i;\n\
-        while (j > 0 && A[j-1] > A[j]) {\n\
+        while j > 0 && A[j-1] > A[j] {\n\
             swap(A, j, j-1);\n\
             j = j - 1;\n\
         }\n\

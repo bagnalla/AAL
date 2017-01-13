@@ -867,9 +867,7 @@ function createWorker() {
             handler (m.data.result);
 	}
     }
-    worker.onerror = function(event){
-	// throw new Error(event.message + " (" + event.filename + ":" +
-	// 		event.lineno + ")");
+    worker.onerror = function(event) {
 	startEdit();
 	cancelTimeout();
 	$("#feedback").text("Compiler exception: " + event.message);
@@ -11765,8 +11763,13 @@ var state = { objects: [] };
 var engine = {};
 
 function update(tFrame) {
+    // compute the time elapsed since the last update
     let time_elapsed = tFrame - state.time;
+
+    // update the timestamp
     state.time = tFrame;
+
+    // update all objects
     for (let o of state.objects) {
 	o.update(time_elapsed);
     }
@@ -11776,6 +11779,7 @@ function draw() {
     // clear canvas
     state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height);
 
+    // draw all objects
     for (let o of state.objects) {
 	if (o.draw) {
 	    o.draw(state.ctx);
@@ -11783,16 +11787,23 @@ function draw() {
     }
 }
 
+// deregister from the browser update loop
 function stop() {
-    window.cancelAnimationFrame(engine.stopMain);
+    window.cancelAnimationFrame(engine.stopCycle);
 }
 
+// The function to be called by the browser at every frame
 function cycle(tFrame) {
-    engine.stopMain = window.requestAnimationFrame(cycle);
+    // re-register for the next frame
+    engine.stopCycle = window.requestAnimationFrame(cycle);
+
+    // update
     if (update(tFrame) < 0) {
 	stop();
 	return;
     }
+
+    // draw
     draw();
 }
 
@@ -11802,8 +11813,10 @@ exports.engine = engine;
 
 exports.run = function(ctx){
     state.ctx = ctx;
+    // initialize state.time to the current time
     state.time = performance.now();
-    window.requestAnimationFrame(cycle);
+    // register the cycle function with the browser update loop
+    engine.stopCycle = window.requestAnimationFrame(cycle);
 }
 
 exports.stop = stop;
@@ -11814,6 +11827,7 @@ exports.addObject = function(o) {
 
 exports.removeObject = function(o) {
     for (let i = 0; i < state.objects.length; i++) {
+	// use the object's provided equals method
 	if (o.equals(state.objects[i])) {
 	    state.objects.splice(i, 1);
 	}
