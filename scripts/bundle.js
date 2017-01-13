@@ -871,6 +871,7 @@ function createWorker() {
 	// throw new Error(event.message + " (" + event.filename + ":" +
 	// 		event.lineno + ")");
 	startEdit();
+	cancelTimeout();
 	$("#feedback").text("Compiler exception: " + event.message);
     };
     return worker;
