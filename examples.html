@@ -59,6 +59,7 @@
       bubbleEditor.session.setMode("ace/mode/javascript");
       bubbleEditor.session.setUseWorker(false);
       bubbleEditor.setReadOnly(true);
+      <!-- bubbleEditor.setOption("tabSize", 2); -->
       bubbleEditor.setValue("def bubbleSort (A : T array &) : unit {\n\
     n = size(A);\n\
     while n != 0 {\n\
@@ -86,6 +87,7 @@ bubbleSort(A);\n");
 	insertionEditor.session.setMode("ace/mode/javascript");
 	insertionEditor.session.setUseWorker(false);
 	insertionEditor.setReadOnly(true);
+	<!-- insertionEditor.setOption("tabSize", 2); -->
 	insertionEditor.setValue("def insertionSort (A : T array &) : unit {\n\
     i = 1;\n\
     while i < size(A) {\n\
@@ -108,6 +110,7 @@ insertionSort(A);\n");
 	  mergeEditor.session.setMode("ace/mode/javascript");
 	  mergeEditor.session.setUseWorker(false);
 	  mergeEditor.setReadOnly(true);
+	  <!-- mergeEditor.setOption("tabSize", 2); -->
 	  mergeEditor.setValue("todo");
 	  mergeEditor.session.selection.clearSelection();
     </script>

@@ -102,12 +102,14 @@ StackFrame.prototype._drawSelf = function(ctx) {
 let BASE_CELL_VELOCITY = 0.06;
 // let BASE_CELL_COLOR_FADE_RATE = 0.05;
 
-var AnimInterpreter = function(endCallback, canvasHeight, parent, aprog = []) {
+var AnimInterpreter = function(endCallback, statusCallback, canvasHeight,
+			       parent, aprog = []) {
     Drawable.call(this, parent);
     this.setProg(aprog);
     this._frame_stack = [];
     this.init();
     this._endCallback = endCallback;
+    this._statusCallback = statusCallback;
     this._canvasHeight = canvasHeight;
 };
 
@@ -361,7 +363,9 @@ AnimInterpreter.prototype.stepForward = function() {
 
     if (this._pc == this._aprog.length) {
 	this._setActiveLine(-1);
-	this._endCallback();
+	if (this._endCallback) {
+	    this._endCallback();
+	}
     }
     else {
 	let lnum = this._lnum_of_com(this._aprog[this._pc]);
@@ -381,6 +385,7 @@ AnimInterpreter.prototype._skipTo = function(i) {
 
 AnimInterpreter.prototype.stepBack = function() {
     let pc = this._pc;
+    if (!pc) { return; }
     this.reset();
     this._skipTo(pc - 1);
     for (let frame of this._frame_stack) {
@@ -447,6 +452,9 @@ AnimInterpreter.prototype._updateSelf = function(time_elapsed) {
 		this.stepForward();
 	    }
 	}
+    }
+    if (this._statusCallback) {
+	this._statusCallback({ pc: this._pc });
     }
 }
 
@@ -756,7 +764,11 @@ var ary = sexp("(foo bar 'string with spaces' 1 (2 3 4))");
 
 var Interp = require('./animinterp.js');
 
+var hotkeysEnabled = false;
+
 function startEdit() {
+    hotkeysEnabled = false;
+
     $("#canvas").css("visibility", "hidden");
     $("#status").css("visibility", "hidden");
     $("#editbutton").css("display", "none");
@@ -780,6 +792,8 @@ function startEdit() {
 }
 
 function startCompile() {
+    hotkeysEnabled = true;
+
     $("#gobutton").css("display", "none");
     $("#cancelbutton").css("display", "inline");
     $("#feedback").html("Compiling...<br>Note: if your program doesn't terminate this will run for 10 seconds before timing out and may use a lot of memory.<br>Press 'Cancel' to cancel compilation early and return to editing.");
@@ -923,16 +937,24 @@ function compile () {
     })
 }
 
+var playEnabled = true;
 function setPlayDisabled(b) {
     $("#playbutton").prop('disabled', b);
     $("#stepbutton").prop('disabled', b);
+    playEnabled = !b;
+}
+
+var backEnabled = true;
+function setBackDisabled(b) {
+    $("#backbutton").prop('disabled', b);
+    backEnabled = !b;
 }
 
 function init() {
     $("#gobutton").click(function() {
 	startCompile();
 	compile();
-	setPlayDisabled(false);
+	setPlayDisabled(false);	
     });
 
     $("#cancelbutton").click(function() {
@@ -1001,6 +1023,7 @@ function init() {
     editor.session.setMode("ace/mode/javascript");
     editor.session.setUseWorker(false); // disable errors/warnings
     editor.setAutoScrollEditorIntoView(true);
+    // editor.session.setOption("tabSize", 2);
 }
 
 function programEndCallback() {
@@ -1009,7 +1032,11 @@ function programEndCallback() {
     setPlayDisabled(true);
 }
 
-var interpreter = new Interp(programEndCallback,
+function statusCallback(status) {
+    setBackDisabled(!status.pc);
+}
+
+var interpreter = new Interp(programEndCallback, statusCallback,
 			     document.getElementById('canvas').height);
 
 init();
@@ -1055,6 +1082,56 @@ $(document).ready(function() {
 
 window.addEventListener('resize', function(event){
     rescale();
+});
+
+document.addEventListener('keydown', function(event) {
+    if (!hotkeysEnabled) { return; }
+
+    switch (event.keyCode) {
+    case 37: // left
+	break;
+    case 38: // up
+	break;
+    case 39: // right
+	break;
+    case 40: // down
+	break;
+    case 66: // b
+	document.getElementById("backbutton").click();w
+	break;
+    case 67: // c
+	document.getElementById("cancelbutton").click();
+	break;
+    case 69: // e
+	document.getElementById("editbutton").click();
+	break;
+    case 70: // f
+	document.getElementById("fasterbutton").click();
+	break;
+    // case 71: // g
+    //  document.getElementById("gobutton").click();
+    // 	break;
+    case 80: // p
+	document.getElementById("playbutton").click();
+	break;
+    case 82: // r
+	document.getElementById("resetbutton").click();
+	break;
+    case 83: // s
+	document.getElementById("stepbutton").click();
+	document.getElementById("stopbutton").click();
+	break;
+    case 87: // w
+	document.getElementById("slowerbutton").click();
+	break;
+    default:
+    }
+    if(event.keyCode == 37) {
+        console.log('Left was pressed');
+    }
+    else if(event.keyCode == 39) {
+        console.log('Right was pressed');
+    }
 });
 
 },{"./animinterp.js":1,"./arrayobjects.js":2,"./puddi/puddi.js":7,"./puddi/puddidrawable.js":8,"jquery-browserify":4,"sexp":5,"victor":6}],4:[function(require,module,exports){
