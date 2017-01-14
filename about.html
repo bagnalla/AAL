@@ -56,9 +56,9 @@
       <br>
       <strong>Array Animation Language</strong> (AAL) is a small, strongly-typed, imperative language designed for visualizing algorithms on array data structures.<br><br>
       AAL programs are compiled to a special instruction set that describes how to animate them.<br><br>
-      Included in the online version is
+      Included in the online version:
       <ol>
-	<li>a Javascript implementation of the compiler</li>
+	<li>a JavaScript implementation of the compiler</li>
 	<li>an animation runtime to run the compiled programs using HTML5 Canvas</li>
       </ol>
       <p>
@@ -307,10 +307,10 @@
       <p>
 	<h2>Implementation</h2>
       <p class="indent">
-	The "compiler" is written entirely in <a href="https://ocaml.org/">OCaml</a> and uses OCamllex, Menhir, and Batteries. It's maybe a bit disingenuous to call it a compiler, since it's really just an AST interpreter that evaluates the program and produces animation step instructions as it goes. It's compiled to Javascript using <a href="https://ocsigen.org/js_of_ocaml/">js_of_ocaml</a> and executed in an HTML5 Web Worker.
+	The "compiler" is written entirely in <a href="https://ocaml.org/">OCaml</a> and uses OCamllex, Menhir, and Batteries. It's maybe a bit disingenuous to call it a compiler, since it's really just an AST interpreter that evaluates the program and produces animation step instructions as it goes. It's compiled to JavaScript using <a href="https://ocsigen.org/js_of_ocaml/">js_of_ocaml</a> and executed in an HTML5 Web Worker.
       </p>
       <p class="indent">
-	The code editor is <a href="https://ace.c9.io/">Ace</a>. The animation runtime is written in Javascript using a custom thin layer over HTML5 Canvas.
+	The code editor is <a href="https://ace.c9.io/">Ace</a>. The animation runtime is written in JavaScript using a custom thin layer over HTML5 Canvas.
       </p>
       </p>
     </div>
