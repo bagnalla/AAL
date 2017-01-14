@@ -59,22 +59,22 @@
       bubbleEditor.session.setMode("ace/mode/javascript");
       bubbleEditor.session.setUseWorker(false);
       bubbleEditor.setReadOnly(true);
-      <!-- bubbleEditor.setOption("tabSize", 2); -->
+      bubbleEditor.setOption("tabSize", 2);
       bubbleEditor.setValue("def bubbleSort (A : T array &) : unit {\n\
-    n = size(A);\n\
-    while n != 0 {\n\
-        new_n = 0;\n\
-        i = 1;\n\
-        while i < n {\n\
-            if A[i-1] > A[i] {\n\
-                swap(A, i-1, i);\n\
-                new_n = i;\n\
-            }\n\
-            else { return; }\n\
-            i = i + 1;\n\
-        }\n\
-        n = new_n;\n\
+  n = size(A);\n\
+  while n != 0 {\n\
+    new_n = 0;\n\
+    i = 1;\n\
+    while i < n {\n\
+      if A[i-1] > A[i] {\n\
+        swap(A, i-1, i);\n\
+        new_n = i;\n\
+      }\n\
+      else { return; }\n\
+      i = i + 1;\n\
     }\n\
+    n = new_n;\n\
+  }\n\
 }\n\
 \n\
 A = [6, 4, 7, 2, 1, 67, 345, 12];\n\
@@ -87,17 +87,17 @@ bubbleSort(A);\n");
 	insertionEditor.session.setMode("ace/mode/javascript");
 	insertionEditor.session.setUseWorker(false);
 	insertionEditor.setReadOnly(true);
-	<!-- insertionEditor.setOption("tabSize", 2); -->
+	insertionEditor.setOption("tabSize", 2);
 	insertionEditor.setValue("def insertionSort (A : T array &) : unit {\n\
-    i = 1;\n\
-    while i < size(A) {\n\
-        j = i;\n\
-        while j > 0 && A[j-1] > A[j] {\n\
-            swap(A, j, j-1);\n\
-            j = j - 1;\n\
-        }\n\
-    i = i + 1;\n\
+  i = 1;\n\
+  while i < size(A) {\n\
+    j = i;\n\
+    while j > 0 && A[j-1] > A[j] {\n\
+      swap(A, j, j-1);\n\
+      j = j - 1;\n\
     }\n\
+    i = i + 1;\n\
+  }\n\
 }\n\
 \n\
 A = [5, 3, 7, 5, 9, 1, 0, 0];\n\
@@ -110,7 +110,7 @@ insertionSort(A);\n");
 	  mergeEditor.session.setMode("ace/mode/javascript");
 	  mergeEditor.session.setUseWorker(false);
 	  mergeEditor.setReadOnly(true);
-	  <!-- mergeEditor.setOption("tabSize", 2); -->
+	  mergeEditor.setOption("tabSize", 2);
 	  mergeEditor.setValue("todo");
 	  mergeEditor.session.selection.clearSelection();
     </script>

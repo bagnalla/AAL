@@ -67,7 +67,8 @@ StackFrame.prototype.setVariablePositions = function(ctx) {
 	10 / 2 // get font height from ctx;
     for (let v of this._variables) {
 	// let h = v.getHeight();
-	v.setPosition(new Vector(14 + labelWidth, offset_y));
+	v.setPosition(new Vector(labelWidth + 1 /* width of line */,
+				 offset_y));
 	offset_y += v.getHeight();
     }
     return labelWidth;
@@ -402,6 +403,14 @@ AnimInterpreter.prototype.getPlaySpeed = function() {
     return this._play_speed;
 };
 
+AnimInterpreter.prototype.getPc = function() {
+    return this._pc;
+}
+
+AnimInterpreter.prototype.getProgramLength = function() {
+    return this._aprog.length();
+}
+
 AnimInterpreter.prototype._updateCellVelocity = function(v) {
     this._cell_velocity = v;
 
@@ -474,6 +483,7 @@ AnimInterpreter.prototype._drawSelf = function(ctx) {
 module.exports = AnimInterpreter;
 
 },{"./arrayobjects.js":2,"./puddi/puddi.js":7,"./puddi/puddidrawable.js":8,"victor":6}],2:[function(require,module,exports){
+var Puddi = require('./puddi/puddi.js');
 var Drawable = require('./puddi/puddidrawable.js');
 var Vector = require('victor');
 
@@ -482,18 +492,16 @@ var Vector = require('victor');
 var MIN_CELL_WIDTH = 25;
 var MIN_CELL_HEIGHT = 25;
 var DEFAULT_CELL_VELOCITY = 0.1;
-// var BASE_COLOR_FADE_RATE = 0.005;
 
 function Cell(parent, value = "") {
     Drawable.call(this, parent);
-    this._value = value;
     this.setVelocity(DEFAULT_CELL_VELOCITY);
-    this._width = MIN_CELL_WIDTH;
+    // this._width = MIN_CELL_WIDTH; // set by setValue
     this._height = MIN_CELL_HEIGHT;
     this._redStrength = 0.0;
     this._greenStrength = 0.0;
     this._blueStrength = 0.0;
-    // this._fade_rate = BASE_COLOR_FADE_RATE;
+    this.setValue(value);
 }
 
 Cell.prototype = Object.create(Drawable.prototype);
@@ -503,15 +511,16 @@ Cell.prototype.getValue = function() { return this._value; };
 Cell.prototype.getWidth = function() { return this._width; };
 Cell.prototype.getHeight = function() { return this._height; };
 
-Cell.prototype.setValue = function(v) { this._value = v; };
+Cell.prototype.setValue = function(v) {
+    this._value = v;
+    let ctx = Puddi.getCtx();
+    let textWidth = ctx.measureText(this._value).width;
+    this._width = Math.max(MIN_CELL_WIDTH, textWidth + 8);
+};
 
 Cell.prototype.flashRed = function() { this._redStrength = 1.0; };
 Cell.prototype.flashGreen = function() { this._greenStrength = 1.0; };
 Cell.prototype.flashBlue = function() { this._blueStrength = 1.0; };
-
-Cell.prototype.setFadeRate = function(fr) {
-    
-}
 
 Cell.prototype._updateSelf = function(time_elapsed) {
     // do stuff
@@ -530,17 +539,16 @@ Cell.prototype._updateSelf = function(time_elapsed) {
 
 Cell.prototype._drawSelf = function(ctx) {
     ctx.lineWidth = 2;
-    // update width based on our value
     let textWidth = ctx.measureText(this._value).width;
     let textHeight = 10; // get font size from ctx
-    this._width = Math.max(MIN_CELL_WIDTH, textWidth + 8);
     ctx.fillStyle = "white";
-    ctx.fillRect(-this._width / 2, -this._height / 2,
-		   this._width, this._height);
-    ctx.strokeRect(-this._width / 2, -this._height / 2,
-		   this._width, this._height);
+    ctx.fillRect(0, -this._height / 2,
+    		   this._width, this._height);
+    ctx.strokeRect(0, -this._height / 2,
+    		   this._width, this._height);
     ctx.fillStyle = "black";
-    ctx.fillText(this._value, -textWidth / 2, textHeight / 2.5);
+    ctx.fillText(this._value, this._width / 2 - textWidth / 2,
+		 textHeight / 2.5);
 };
 
 
@@ -579,7 +587,7 @@ Variable.prototype.setElement = function(el) {
 Variable.prototype._drawSelf = function(ctx) {
     // draw label
     //let labelWidth = ctx.measureText(this._label).width;
-    ctx.fillText(this._label, -MIN_CELL_WIDTH / 2 // need single cell width
+    ctx.fillText(this._label, 0 // need single cell width
 		 - this.getLabelWidth(ctx) - 6, 2.5);
 }
 
@@ -747,7 +755,7 @@ module.exports = {
     Array: Array
 };
 
-},{"./puddi/puddidrawable.js":8,"victor":6}],3:[function(require,module,exports){
+},{"./puddi/puddi.js":7,"./puddi/puddidrawable.js":8,"victor":6}],3:[function(require,module,exports){
 var $ = require('jquery-browserify')
 var sexp = require('sexp');
 
@@ -765,6 +773,7 @@ var ary = sexp("(foo bar 'string with spaces' 1 (2 3 4))");
 var Interp = require('./animinterp.js');
 
 var hotkeysEnabled = false;
+var autoplaying = false;
 
 function startEdit() {
     hotkeysEnabled = false;
@@ -822,6 +831,7 @@ function startAnimation(aprog) {
 
 function startAutoplay() {
     interpreter.setAutoplay(true);
+    autoplaying = true;
 
     $("#stopbutton").css("display", "inline");
     $("#fasterbutton").css("display", "inline");
@@ -837,6 +847,7 @@ function startAutoplay() {
 
 function stopAutoplay() {
     interpreter.setAutoplay(false);
+    autoplaying = false;
 
     $("#stopbutton").css("display", "none");
     $("#fasterbutton").css("display", "none");
@@ -1023,7 +1034,7 @@ function init() {
     editor.session.setMode("ace/mode/javascript");
     editor.session.setUseWorker(false); // disable errors/warnings
     editor.setAutoScrollEditorIntoView(true);
-    // editor.session.setOption("tabSize", 2);
+    editor.session.setOption("tabSize", 2);
 }
 
 function programEndCallback() {
@@ -1037,6 +1048,7 @@ function statusCallback(status) {
 }
 
 var interpreter = new Interp(programEndCallback, statusCallback,
+			     // (status) => setBackDisabled(!status.pc),
 			     document.getElementById('canvas').height);
 
 init();
@@ -1118,8 +1130,12 @@ document.addEventListener('keydown', function(event) {
 	document.getElementById("resetbutton").click();
 	break;
     case 83: // s
-	document.getElementById("stepbutton").click();
-	document.getElementById("stopbutton").click();
+	if (autoplaying) {
+	    document.getElementById("stopbutton").click();
+	}
+	else {
+	    document.getElementById("stepbutton").click();
+	}
 	break;
     case 87: // w
 	document.getElementById("slowerbutton").click();
@@ -11870,43 +11886,44 @@ function degrees2radian (deg) {
 }
 
 },{}],7:[function(require,module,exports){
-var state = { objects: [] };
+var state = { _objects: [] };
 var engine = {};
 
 function update(tFrame) {
     // compute the time elapsed since the last update
-    let time_elapsed = tFrame - state.time;
+    let time_elapsed = tFrame - state._time;
 
     // update the timestamp
-    state.time = tFrame;
+    state._time = tFrame;
 
     // update all objects
-    for (let o of state.objects) {
+    for (let o of state._objects) {
 	o.update(time_elapsed);
     }
 }
 
 function draw() {
     // clear canvas
-    state.ctx.clearRect(0, 0, state.ctx.canvas.width, state.ctx.canvas.height);
+    state._ctx.clearRect(0, 0, state._ctx.canvas.width,
+			 state._ctx.canvas.height);
 
     // draw all objects
-    for (let o of state.objects) {
+    for (let o of state._objects) {
 	if (o.draw) {
-	    o.draw(state.ctx);
+	    o.draw(state._ctx);
 	}
     }
 }
 
 // deregister from the browser update loop
 function stop() {
-    window.cancelAnimationFrame(engine.stopCycle);
+    window.cancelAnimationFrame(engine._stopCycle);
 }
 
 // The function to be called by the browser at every frame
 function cycle(tFrame) {
     // re-register for the next frame
-    engine.stopCycle = window.requestAnimationFrame(cycle);
+    engine._stopCycle = window.requestAnimationFrame(cycle);
 
     // update
     if (update(tFrame) < 0) {
@@ -11920,30 +11937,32 @@ function cycle(tFrame) {
 
 // EXPORTS
 
-exports.engine = engine;
+exports._engine = engine;
 
 exports.run = function(ctx){
-    state.ctx = ctx;
-    // initialize state.time to the current time
-    state.time = performance.now();
+    state._ctx = ctx;
+    // initialize state._time to the current time
+    state._time = performance.now();
     // register the cycle function with the browser update loop
-    engine.stopCycle = window.requestAnimationFrame(cycle);
-}
+    engine._stopCycle = window.requestAnimationFrame(cycle);
+};
 
 exports.stop = stop;
 
 exports.addObject = function(o) {
-    state.objects.push(o);
-}
+    state._objects.push(o);
+};
 
 exports.removeObject = function(o) {
-    for (let i = 0; i < state.objects.length; i++) {
+    for (let i = 0; i < state._objects.length; i++) {
 	// use the object's provided equals method
-	if (o.equals(state.objects[i])) {
-	    state.objects.splice(i, 1);
+	if (o.equals(state._objects[i])) {
+	    state._objects.splice(i, 1);
 	}
     }
-}
+};
+
+exports.getCtx = function() { return state._ctx; };
 
 },{}],8:[function(require,module,exports){
 var PuddiObject = require('./puddiobject.js');
@@ -12068,14 +12087,12 @@ PuddiObject.prototype.update = function(time_elapsed) {
     if (this._position.x != this._targetPosition.x ||
 	this._position.y != this._targetPosition.y) {
 	let v = this._velocity * time_elapsed;
-	let displacement = this._targetPosition.clone().subtract(this._position);
+	let displacement =
+	    this._targetPosition.clone().subtract(this._position);
 	if (displacement.length() <= v) {
 	    this.setPosition(this._targetPosition.clone());
 	}
 	else {
-	    // console.log(displacement);
-	    // console.log(displacement.normalize());
-	    // console.log(displacement.normalize().multiply(new Vector(v, v)));
 	    this.translate(displacement.normalize().multiply(new Vector(v, v)));
 	}
     }

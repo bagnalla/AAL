@@ -153,7 +153,7 @@
 	The special type 'T' can be used in place of actual types in the formal parameters and return types of function definitions. This provides a limited form of parametric polymorphism (there can only be one type parameter per function definition). A polymorphic function will typecheck successfully if its polymorphic arguments are used in a way that is compatible with all types (the intrinsic functions listed below are polymorphic and thus compatible with all types).
       </p>
       <p class="indent">
-	Generally, when a polymorphic function is called, the types of the arguments being passed can be used to determine the actual type to instantiate T with. If there are no such arguments, then the type must be explicitly provided using the '@' syntax. See the 'create' intrinsic function below.
+	Typically, when a polymorphic function is called, the types of the arguments can be used to determine which type to instantiate T with. If there are no such arguments, then the actual type for T must be explicitly provided using the '@' syntax. See the 'create' intrinsic function below.
       </p>
       <h4>Intrinsic Functions</h4>
       <p class="indent">
@@ -310,7 +310,7 @@
 	The "compiler" is written entirely in <a href="https://ocaml.org/">OCaml</a> and uses OCamllex, Menhir, and Batteries. It's maybe a bit disingenuous to call it a compiler, since it's really just an AST interpreter that evaluates the program and produces animation step instructions as it goes. It's compiled to JavaScript using <a href="https://ocsigen.org/js_of_ocaml/">js_of_ocaml</a> and executed in an HTML5 Web Worker.
       </p>
       <p class="indent">
-	The code editor is <a href="https://ace.c9.io/">Ace</a>. The animation runtime is written in JavaScript using a custom thin layer over HTML5 Canvas.
+	The code editor is <a href="https://ace.c9.io/">Ace</a>. The animation runtime is written in JavaScript using <a href="http://victorjs.org/">victor.js</a>, <a href="https://www.npmjs.com/package/sexp">sexp</a>, and a custom thin layer on top of HTML5 Canvas.
       </p>
       </p>
     </div>
