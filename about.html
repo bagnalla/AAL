@@ -96,6 +96,7 @@
 	  <tr><td><strong><=</strong></td><td>less-than-or-equal</td></tr>
 			    <tr><td><strong>>=</strong></td><td>greater-than-or-equal</td></tr>
 	  <tr><td><strong>==</strong></td><td>equal to</td></tr>
+	  <tr><td><strong>!=</strong></td><td>not equal to</td></tr>
 	  <tr><td><strong>=</strong></td><td>assignment</td></tr>
 	</table>
 	</div>
@@ -103,19 +104,16 @@
 	The syntax is mostly based on C and can be seen easily in the example programs. But there are a few differences:
 	<ul>
 	  <li>
-	    Function definitions begin with the 'def' keyword. Type annotations are in ML style, and must always be provided (no type reconstruction/inference).
+	    Function definitions begin with the 'def' keyword. Type annotations are in ML style, and are required (no type reconstruction/inference).
 	  </li>
 	  <li>
 	    Currently, branches of if/else statements must always be enclosed in curly braces.
 	  </li>
 	  <li>
-	    Function calls may be annotated with an explicit type parameter using the '@' syntax. See the 'Parametric Polymorphism' section.
+	    Function calls may be annotated with a type parameter using the '@' syntax. See the 'Parametric Polymorphism' section.
 	  </li>
 	  <li>
 	    Parentheses aren't required around control structure guard conditions.<br>e.g., while true { ... } is equivalent to while (true) { ... }.
-	  </li>
-	  <li>
-	    Currently, square bracket syntax can be used for reading elements from an array, but not for assignment. For array element assignment, see the 'set' function in the 'Intrinsic Functions' section.
 	  </li>
 	</ul>
       </p>
@@ -132,6 +130,9 @@
       <p class="indent">
 	Arrays are homogeneous. That is, all values in an array must have the same type. Arrays can, however, contain other arrays. Arrays be be created either with the array literal syntax (e.g., A = [a1, ..., an]) or with the built-in 'create' function. Creating an empty array using 'create' is the only situation in which explicit type parameter annotation is strictly necessary.
       </p>
+      <!-- <p class="indent"> -->
+      <!-- 	Square bracket syntax (e.g., A[i]) can be used to read and write elements of an array. It is just syntactic sugar for calls to either 'at' or 'set', depending on the context. See  -->
+      <!-- </p> -->
       <h4>User-defined Functions</h4>
       <p class="indent">
 	All function declarations must be at the beginning of the program. Arguments are passed by value by default (a copy is made on the newly allocated stack frame) but they can be passed by reference by appending '&' at the end of the type annotation. Here is an example function that takes an int parameter by reference and increments it:

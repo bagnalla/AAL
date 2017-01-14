@@ -244,7 +244,6 @@ AnimInterpreter.prototype._clear = function(id) {
 AnimInterpreter.prototype._interpInstr = function(instr) {
     console.log("interpreting " + instr[0]);
     console.log(instr);
-    console.log("");
     switch (instr[0]) {
     case "ICreate":
 	var id = instr[1];
@@ -307,7 +306,6 @@ AnimInterpreter.prototype._computeFrameStackHeight = function() {
     for (let frame of this._frame_stack) {
 	h += frame.getHeight();
     }
-    console.log("frame stack height: " + h);
     return h;
 }
 
@@ -331,26 +329,19 @@ AnimInterpreter.prototype._lnum_of_com = function(com) {
 
 AnimInterpreter.prototype._interpCom = function(com) {
     console.log("interpreting " + com[0]);
-    // console.log(com[1]);
-    // console.log(com[1][0][0]);
-    // console.log(com[1][1]);
-    // console.log("");
     switch (com[0]) {
     case "CFrameBegin":
 	var flabel = com[1][0];
 	var lnum = com[1][1];
-	// this._setActiveLine(lnum);
 	this._addFrame(flabel);
 	break;
     case "CFrameEnd":
 	lnum = com[1];
-	// this._setActiveLine(lnum);
 	this._deleteFrame();
 	break;
     case "CStep":
 	let instrs = com[1][0];
 	lnum = com[1][1];
-	// this._setActiveLine(lnum);
 	for (let instr of instrs) {
 	    this._interpInstr(instr);
 	}
@@ -464,7 +455,6 @@ AnimInterpreter.prototype._drawSelf = function(ctx) {
     let actualHeight = frameStackHeight +
 	this._frame_stack.length * 20; // from font height
     let overflow = Math.max(0, actualHeight - this._canvasHeight);
-    console.log("overflow: " + overflow);
     offset_y = 10 - overflow; // font height from ctx
     for (let frame of this._frame_stack) {
 	frame.setPosition(new Vector(0, offset_y));
@@ -1010,6 +1000,7 @@ function init() {
     editor.setTheme("ace/theme/iplastic");
     editor.session.setMode("ace/mode/javascript");
     editor.session.setUseWorker(false); // disable errors/warnings
+    editor.setAutoScrollEditorIntoView(true);
 }
 
 function programEndCallback() {
@@ -1022,6 +1013,49 @@ var interpreter = new Interp(programEndCallback,
 			     document.getElementById('canvas').height);
 
 init();
+
+// small default screen size
+let screen_width = 640;
+let screen_height = 480;
+
+function rescale() {
+    screen_width = window.innerWidth
+	|| document.documentElement.clientWidth
+	|| document.body.clientWidth;
+    screen_height = window.innerHeight
+	|| document.documentElement.clientHeight
+	|| document.body.clientHeight;
+    console.log("width: " + screen_width + ", height: " + screen_height);
+    
+    let w = screen_width - 100; // 50 margin on both sides
+    let h = screen_height - 150; // vertical space available
+    // give editor 80 columns or half the width if not enough space
+    let editor_width = Math.min(545, w / 2);
+    $("#editor").css("width", editor_width);
+    $("#feedback").css("width", editor_width);
+    
+    // give canvas the remaining width
+    let canvas = document.getElementById('canvas');
+    canvas.width = w - editor_width;
+    $("#status").css("width", w - editor_width);
+
+    // give canvas the max height possible and
+    // editor 105 less than that
+    canvas.height = h;
+    $("#editor").css("height", h - 105);
+
+    // refresh editor
+    let editor = ace.edit("editor");
+    editor.resize();
+}
+
+$(document).ready(function() {
+    rescale();
+});
+
+window.addEventListener('resize', function(event){
+    rescale();
+});
 
 },{"./animinterp.js":1,"./arrayobjects.js":2,"./puddi/puddi.js":7,"./puddi/puddidrawable.js":8,"jquery-browserify":4,"sexp":5,"victor":6}],4:[function(require,module,exports){
 // Uses Node, AMD or browser globals to create a module.
