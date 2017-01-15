@@ -625,7 +625,7 @@ Array.prototype.getElements = function() { return this._elements; };
 
 Array.prototype._setElementPosition = function(el, i) {
     let w = 0;
-    for (let j = 0; j < i - 1; j++) {
+    for (let j = 0; j < i; j++) {
 	w += this._elements[j].getWidth();
     }
     el.setPosition(new Vector(w, 0));
@@ -665,7 +665,7 @@ Array.prototype.setPositions = function() {
 Array.prototype.addElement = function(o) {
     this._elements.push(o);
     // this.addChild(o); // the element adds itself
-    this._setElementPosition(o, this._elements.length);
+    this._setElementPosition(o, this._elements.length - 1);
     o.flashGreen();
 };
 
