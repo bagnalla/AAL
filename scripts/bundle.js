@@ -1034,7 +1034,8 @@ function init() {
     editor.session.setMode("ace/mode/javascript");
     editor.session.setUseWorker(false); // disable errors/warnings
     editor.setAutoScrollEditorIntoView(true);
-    editor.session.setOption("tabSize", 2);
+    editor.setOption("fontSize", 14);
+    editor.setOption("tabSize", 2);
 }
 
 function programEndCallback() {

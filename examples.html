@@ -21,15 +21,15 @@
       }
 
       #bubbleEditor {
-      height: 300px;
+      height: 353px;
       }
 
       #insertionEditor {
-      height: 230px;
+      height: 269px;
       }
 
       #mergeEditor {
-      height: 300px;
+      height: 33px;
       }
 
       h3 { text-align: center; }
@@ -59,6 +59,7 @@
       bubbleEditor.session.setMode("ace/mode/javascript");
       bubbleEditor.session.setUseWorker(false);
       bubbleEditor.setReadOnly(true);
+      bubbleEditor.setOption("fontSize", 14);
       bubbleEditor.setOption("tabSize", 2);
       bubbleEditor.setValue("def bubbleSort (A : T array &) : unit {\n\
   n = size(A);\n\
@@ -87,6 +88,7 @@ bubbleSort(A);\n");
 	insertionEditor.session.setMode("ace/mode/javascript");
 	insertionEditor.session.setUseWorker(false);
 	insertionEditor.setReadOnly(true);
+	insertionEditor.setOption("fontSize", 14);
 	insertionEditor.setOption("tabSize", 2);
 	insertionEditor.setValue("def insertionSort (A : T array &) : unit {\n\
   i = 1;\n\
@@ -110,8 +112,9 @@ insertionSort(A);\n");
 	  mergeEditor.session.setMode("ace/mode/javascript");
 	  mergeEditor.session.setUseWorker(false);
 	  mergeEditor.setReadOnly(true);
+	  mergeEditor.setOption("fontSize", 14);
 	  mergeEditor.setOption("tabSize", 2);
-	  mergeEditor.setValue("todo");
+	  mergeEditor.setValue("todo\n");
 	  mergeEditor.session.selection.clearSelection();
     </script>
     </div>
