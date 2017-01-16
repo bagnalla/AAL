@@ -1033,9 +1033,29 @@ function init() {
     editor.setTheme("ace/theme/iplastic");
     editor.session.setMode("ace/mode/javascript");
     editor.session.setUseWorker(false); // disable errors/warnings
-    editor.setAutoScrollEditorIntoView(true);
+    // editor.setAutoScrollEditorIntoView(true);
+    editor.commands.removeCommand(editor.commands.byName.showSettingsMenu)
     editor.setOption("fontSize", 14);
     editor.setOption("tabSize", 2);
+    // add commands for changing font size
+    editor.commands.addCommand({
+	name: 'fontSizeDecrease',
+	bindKey: {win: 'Ctrl-,',  mac: 'Command-,'},
+	exec: function(editor) {
+            editor.setOption("fontSize",
+			     Math.max(6, editor.getOption("fontSize") - 1));
+	    editor.resize();
+	}
+    });
+    editor.commands.addCommand({
+	name: 'fontSizeIncrease',
+	bindKey: {win: 'Ctrl-.',  mac: 'Command-.'},
+	exec: function(editor) {
+            editor.setOption("fontSize",
+			     editor.getOption("fontSize") + 1);
+	    editor.resize();
+	}
+    });
 }
 
 function programEndCallback() {
