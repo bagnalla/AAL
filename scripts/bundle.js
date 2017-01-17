@@ -77,9 +77,9 @@ StackFrame.prototype.setVariablePositions = function(ctx) {
 StackFrame.prototype._drawSelf = function(ctx) {
     let labelWidth = this.setVariablePositions(ctx);
     let textHeight = 10; // get from ctx font
-    ctx.fillText(this._label, 0, 0);
+    ctx.fillText(this._label, 1, 0);
     // let w = this.getWidth();
-    let w = ctx.canvas.width;
+    let w = ctx.canvas.width * (1 / Puddi.getScale());
     let h = this.getHeight();
     ctx.fillStyle = "gray";
     ctx.fillRect(0, textHeight / 2, w, h);
@@ -707,13 +707,17 @@ Array.prototype.swap = function(index1, index2) {
     let el2 = this._elements[index2];
     let tmp = el1.getTargetPosition();
     // swap graphically
-    el1.setTargetPosition(el2.getTargetPosition());
-    el2.setTargetPosition(tmp);
-    el1.flashBlue();
-    el2.flashBlue();
+    // el1.setTargetPosition(el2.getTargetPosition());
+    // el2.setTargetPosition(tmp);
+    // el1.flashBlue();
+    // el2.flashBlue();
     // swap internally
     this._elements[index1] = el2;
     this._elements[index2] = el1;
+    // swap graphically
+    el1.flashBlue();
+    el2.flashBlue();
+    this._setAllElementTargetPositions();
 }
 
 Array.prototype.flashRed = function() {
@@ -774,6 +778,7 @@ var Interp = require('./animinterp.js');
 
 var hotkeysEnabled = false;
 var autoplaying = false;
+var compiling = false;
 
 function startEdit() {
     hotkeysEnabled = false;
@@ -802,6 +807,7 @@ function startEdit() {
 
 function startCompile() {
     hotkeysEnabled = true;
+    compiling = true;
 
     $("#gobutton").css("display", "none");
     $("#cancelbutton").css("display", "inline");
@@ -809,6 +815,10 @@ function startCompile() {
 
     let editor = ace.edit("editor");
     editor.setReadOnly(true);
+}
+
+function stopCompile() {
+    compiling = false;
 }
 
 function startAnimation(aprog) {
@@ -926,6 +936,7 @@ function compile () {
     var txt = editor.getValue();
     startTimeout();
     ASYNCH ("compile", [txt], function (resp) {
+	stopCompile();
 	cancelTimeout();
 	// console.log("response from compile: " + resp);
 	let response = sexp(resp);
@@ -961,6 +972,17 @@ function setBackDisabled(b) {
     backEnabled = !b;
 }
 
+function increaseFontSize(editor) {
+    editor.setOption("fontSize", editor.getOption("fontSize") + 1);
+    editor.resize();
+}
+
+function decreaseFontSize(editor) {
+    editor.setOption("fontSize",
+		     Math.max(6, editor.getOption("fontSize") - 1));
+    editor.resize();
+}
+
 function init() {
     $("#gobutton").click(function() {
 	startCompile();
@@ -971,6 +993,7 @@ function init() {
     $("#cancelbutton").click(function() {
 	cancelTimeout();
 	cancelWorker();
+	stopCompile();
 	startEdit();
     });
 
@@ -1024,6 +1047,7 @@ function init() {
     updateStepInterval();
     
     let ctx = document.getElementById('canvas').getContext('2d');
+    // ctx.scale(2, 2); // not working .. ?
     Puddi.run(ctx);
     startEdit();
 
@@ -1041,20 +1065,20 @@ function init() {
     editor.commands.addCommand({
 	name: 'fontSizeDecrease',
 	bindKey: {win: 'Ctrl-,',  mac: 'Command-,'},
-	exec: function(editor) {
-            editor.setOption("fontSize",
-			     Math.max(6, editor.getOption("fontSize") - 1));
-	    editor.resize();
-	}
+	exec: decreaseFontSize
     });
     editor.commands.addCommand({
 	name: 'fontSizeIncrease',
 	bindKey: {win: 'Ctrl-.',  mac: 'Command-.'},
-	exec: function(editor) {
-            editor.setOption("fontSize",
-			     editor.getOption("fontSize") + 1);
-	    editor.resize();
-	}
+	exec: increaseFontSize
+    });
+
+    $("#editorplusbutton").click(function() {
+	increaseFontSize(editor);
+    });
+
+    $("#editorminusbutton").click(function() {
+	decreaseFontSize(editor);
     });
 }
 
@@ -1087,12 +1111,12 @@ function rescale() {
 	|| document.body.clientHeight;
     console.log("width: " + screen_width + ", height: " + screen_height);
     
-    let w = screen_width - 100; // 50 margin on both sides
-    let h = screen_height - 150; // vertical space available
+    let w = screen_width - 75; // 25 margin on both sides
+    let h = screen_height - 135; // vertical space available
     // give editor 80 columns or half the width if not enough space
     let editor_width = Math.min(545, w / 2);
     $("#editor").css("width", editor_width);
-    $("#feedback").css("width", editor_width);
+    $("#feedback").css("width", editor_width - 4); // minus left margin
     
     // give canvas the remaining width
     let canvas = document.getElementById('canvas');
@@ -1117,6 +1141,20 @@ window.addEventListener('resize', function(event){
     rescale();
 });
 
+$("#canvasplusbutton").click(function() {
+    Puddi.scale(1.1);
+    rescale();
+    let ctx = document.getElementById('canvas').getContext('2d');
+    ctx.scale(Puddi.getScale(), Puddi.getScale());
+});
+
+$("#canvasminusbutton").click(function() {
+    Puddi.scale(0.9);
+    rescale();
+    let ctx = document.getElementById('canvas').getContext('2d');
+    ctx.scale(Puddi.getScale(), Puddi.getScale());
+});
+
 document.addEventListener('keydown', function(event) {
     if (!hotkeysEnabled) { return; }
 
@@ -1133,7 +1171,9 @@ document.addEventListener('keydown', function(event) {
 	document.getElementById("backbutton").click();w
 	break;
     case 67: // c
-	document.getElementById("cancelbutton").click();
+	if (compiling) {
+	    document.getElementById("cancelbutton").click();
+	}
 	break;
     case 69: // e
 	document.getElementById("editbutton").click();
@@ -11907,7 +11947,10 @@ function degrees2radian (deg) {
 }
 
 },{}],7:[function(require,module,exports){
-var state = { _objects: [] };
+var state = {
+    _objects: [],
+    _scale: 1.0
+};
 var engine = {};
 
 function update(tFrame) {
@@ -11925,8 +11968,8 @@ function update(tFrame) {
 
 function draw() {
     // clear canvas
-    state._ctx.clearRect(0, 0, state._ctx.canvas.width,
-			 state._ctx.canvas.height);
+    state._ctx.clearRect(0, 0, state._ctx.canvas.width * state._scale,
+			 state._ctx.canvas.height * state._scale);
 
     // draw all objects
     for (let o of state._objects) {
@@ -11960,7 +12003,7 @@ function cycle(tFrame) {
 
 exports._engine = engine;
 
-exports.run = function(ctx){
+exports.run = function(ctx) {
     state._ctx = ctx;
     // initialize state._time to the current time
     state._time = performance.now();
@@ -11984,6 +12027,13 @@ exports.removeObject = function(o) {
 };
 
 exports.getCtx = function() { return state._ctx; };
+
+exports.scale = function(s) {
+    state._scale *= s;
+    state._ctx.scale(state._scale, state._scale);
+};
+
+exports.getScale = function() { return state._scale; };
 
 },{}],8:[function(require,module,exports){
 var PuddiObject = require('./puddiobject.js');
