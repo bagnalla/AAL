@@ -8,7 +8,7 @@
       text-indent: 40px
       }
       #content {
-      width: 750px;
+      width: 650px;
       text-align: left;
       margin: auto;
       }
@@ -69,11 +69,11 @@
 	<li>an animation runtime to run the compiled programs using HTML5 Canvas</li>
       </ol>
       <p>
-	<h2>Keywords</h2>
+	<h3>Keywords</h3>
 	array, def, while, if, else, int, string, bool, unit, tt, T, return
       </p>
       <p>
-	<h2>Types</h2>
+	<h3>Types</h3>
 	The set of types is given by the following inductive definition:<br><br>
 	<div class="types">
 	t ::=<br>
@@ -84,10 +84,10 @@
 	&nbsp;&nbsp;| t array
 	</div>
 	<br><br>
-	Integers are 32 bits. 'unit' is the type with only one value: 'tt' (similar to ML). Note that there is no 'char' type - only string.
+	Integers are 32 bits. 'unit' is the type with only one value: 'tt' (similar to ML). Note that there is no 'char' type (only string).
       </p>
       <p>
-	<h2>Operators</h2>
+	<h3>Operators</h3>
 	<div>
 	<table class="operators">
 	  <col width="50">
@@ -107,8 +107,8 @@
 	  <tr><td><strong>=</strong></td><td>assignment</td></tr>
 	</table>
 	</div>
-	<h2>Syntax</h2>
-	The syntax is mostly based on a subset of C and can be seen easily in the example programs. But there are a few differences:
+	<h3>Syntax</h3>
+	The syntax is mostly C-like with a few exceptions:
 	<ul>
 	  <li>
 	    Function definitions begin with the 'def' keyword. Type annotations are in ML style, and are required (no type reconstruction/inference).
@@ -120,27 +120,27 @@
 	    Function calls may be annotated with a type parameter using the '@' syntax. See the 'Parametric Polymorphism' section.
 	  </li>
 	  <li>
-	    Parentheses aren't required around control structure guard conditions.<br>e.g., while true { ... } is equivalent to while (true) { ... }.
+	    Parentheses aren't required around control structure guard conditions.<br>e.g., while (true) { ... } is equivalent to while true { ... }.
 	  </li>
 	</ul>
       </p>
       <p>
-	<h2>Semantics</h2>
-	<h3>Variables</h3>
+	<h3>Semantics</h3>
+	<h4>Variables</h4>
       <p class="indent">
 	All variables are stack-allocated. At the beginning of each function invocation (including the main), all of the function's formal parameters and local variables are allocated on the new stack frame and given appropriate initial values. The scope of a variable is the entire function in which it resides, no matter where it appears inside the function body.
       </p>
       <p class="indent">
 	Explicit variable declarations are not necessary (or even possible). Simply assigning a value to an identifier will declare a variable with the type of the value being assigned (similar to Python, but statically typed). Variables can contain values of the basic types (bool, int, string) or arrays.
       </p>
-      <h3>Arrays</h3>
+      <h4>Arrays</h4>
       <p class="indent">
 	Arrays are homogeneous. That is, all values in an array must have the same type. Arrays can, however, contain other arrays. Arrays be be created either with the array literal syntax (e.g., A = [a1, ..., an]) or with the built-in 'create' function. Creating an empty array using 'create' is the only situation in which explicit type parameter annotation is strictly necessary.
       </p>
       <!-- <p class="indent"> -->
       <!-- 	Square bracket syntax (e.g., A[i]) can be used to read and write elements of an array. It is just syntactic sugar for calls to either 'at' or 'set', depending on the context. See  -->
       <!-- </p> -->
-      <h3>User-defined Functions</h3>
+      <h4>User-defined Functions</h4>
       <p class="indent">
 	All function declarations must be at the beginning of the program. Arguments are passed by value by default (a copy is made on the newly allocated stack frame) but they can be passed by reference by appending '&' at the end of the type annotation. Here is an example function that takes an int parameter by reference and increments it:
       </p>
@@ -150,19 +150,19 @@
       }
       </div>
       <p class="indent">
-	Functions with a return type other than 'unit' must terminate every control flow path with a return command. Explicitly returning the unit value 'tt' from functions with return type 'unit' is allowed, but not required. When a function is called as a standalone command (it's return value is not being used) its return type must be 'unit'.
+	Functions with a return type other than 'unit' must terminate every control flow path with a return command. Explicitly returning the unit value 'tt' from functions with return type 'unit' is allowed, but not required. When a function is called as a standalone command (its return value is not being used) its return type must be 'unit'.
       </p>
       <p class="indent">
 	All functions may call themselves or other functions (mutually) recursively. 
       </p>
-      <h3>Parametric Polymorphism</h3>
+      <h4>Parametric Polymorphism</h4>
       <p class="indent">
 	The special type 'T' can be used in place of actual types in the formal parameters and return types of function definitions. This provides a limited form of parametric polymorphism (there can only be one type parameter per function definition). A polymorphic function will typecheck successfully if its polymorphic arguments are used in a way that is compatible with all types (the intrinsic functions listed below are polymorphic and thus compatible with all types).
       </p>
       <p class="indent">
-	Typically, when a polymorphic function is called, the types of the arguments can be used to determine which type to instantiate T with. If there are no such arguments, then the actual type for T must be explicitly provided using the '@' syntax. See the 'create' intrinsic function below.
+	Usually, when a polymorphic function is called, the types of the arguments can be used to determine which type to instantiate T with. If there are no such arguments, then the actual type for T must be explicitly provided using the '@' syntax. See the 'create' intrinsic function below.
       </p>
-      <h3>Intrinsic Functions</h3>
+      <h4>Intrinsic Functions</h4>
       <p class="indent">
 	The following functions are built-in:
       </p>
@@ -312,12 +312,12 @@
 	<!-- </ul> -->
       <!-- </p> -->
       <p>
-	<h2>Implementation</h2>
+	<h3>Implementation</h3>
       <p class="indent">
-	The "compiler" is written entirely in <a href="https://ocaml.org/">OCaml</a> and uses OCamllex, Menhir, and Batteries. It's maybe a bit disingenuous to call it a compiler, since it's really just an AST interpreter that evaluates the program and produces animation step instructions as it goes. It's compiled to JavaScript using <a href="https://ocsigen.org/js_of_ocaml/">js_of_ocaml</a> and executed in an HTML5 Web Worker.
+	The "compiler" is written entirely in <a href="https://ocaml.org/">OCaml</a> and uses OCamllex, Menhir, and Batteries. It's maybe a bit disingenuous to call it a compiler, since it's really just an AST interpreter that evaluates the program and produces animation step instructions as it goes. It's compiled to JavaScript using <a href="https://ocsigen.org/js_of_ocaml/">js_of_ocaml</a> and runs in an HTML5 Web Worker.
       </p>
       <p class="indent">
-	The code editor is <a href="https://ace.c9.io/">Ace</a>. The animation runtime is written in JavaScript using <a href="http://victorjs.org/">victor.js</a>, <a href="https://www.npmjs.com/package/sexp">sexp</a>, and a custom thin layer on top of HTML5 Canvas. Some CSS is from <a href="http://getbootstrap.com/">Bootstrap</a>.
+	The code editor is <a href="https://ace.c9.io/">Ace</a>. The animation runtime is written in JavaScript using <a href="http://victorjs.org/">victor.js</a>, <a href="https://www.npmjs.com/package/sexp">sexp</a>, and a custom thin layer on top of HTML5 Canvas. <a href="http://getbootstrap.com/">Bootstrap</a> is used for CSS.
       </p>
       </p>
     </div>

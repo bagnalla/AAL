@@ -780,6 +780,12 @@ var compiling = false;
 
 var timeoutId = null;
 
+var interpreter = null;
+
+// small default screen size
+let screen_width = 640;
+let screen_height = 480;
+
 function startEdit() {
     hotkeysEnabled = false;
 
@@ -983,6 +989,10 @@ function decreaseFontSize(editor) {
 }
 
 function init() {
+    interpreter = new Interp(programEndCallback, statusCallback,
+			     // (status) => setBackDisabled(!status.pc),
+			     document.getElementById('canvas'));
+    
     $("#gobutton").click(function() {
 	startCompile();
 	compile();
@@ -1045,9 +1055,10 @@ function init() {
 
     updateStepInterval();
     
-    let ctx = document.getElementById('canvas').getContext('2d');
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
     // ctx.scale(2, 2); // not working .. ?
-    Puddi.run(ctx);
+    Puddi.run(canvas);
     startEdit();
 
     // configure ace editor
@@ -1092,16 +1103,6 @@ function statusCallback(status) {
     setBackDisabled(!status.pc);
 }
 
-var interpreter = new Interp(programEndCallback, statusCallback,
-			     // (status) => setBackDisabled(!status.pc),
-			     document.getElementById('canvas'));
-
-init();
-
-// small default screen size
-let screen_width = 640;
-let screen_height = 480;
-
 function rescale() {
     screen_width = window.innerWidth
 	|| document.documentElement.clientWidth
@@ -1131,32 +1132,14 @@ function rescale() {
     // refresh editor
     let editor = ace.edit("editor");
     editor.resize();
-
-    // refresh canvas scale
-    let ctx = document.getElementById('canvas').getContext('2d');
-    ctx.scale(Puddi.getScale(), Puddi.getScale());
 }
-
-$(document).ready(function() {
-    rescale();
-});
-
-window.addEventListener('resize', function(event){
-    rescale();
-});
 
 $("#canvasplusbutton").click(function() {
     Puddi.scale(1.1);
-    rescale();
-    // let ctx = document.getElementById('canvas').getContext('2d');
-    // ctx.scale(Puddi.getScale(), Puddi.getScale());
 });
 
 $("#canvasminusbutton").click(function() {
     Puddi.scale(0.9);
-    rescale();
-    // let ctx = document.getElementById('canvas').getContext('2d');
-    // ctx.scale(Puddi.getScale(), Puddi.getScale());
 });
 
 document.addEventListener('keydown', function(event) {
@@ -1213,6 +1196,15 @@ document.addEventListener('keydown', function(event) {
     else if(event.keyCode == 39) {
         console.log('Right was pressed');
     }
+});
+
+window.addEventListener('resize', function(event){
+    rescale();
+});
+
+$(document).ready(function() {
+    init();
+    rescale();
 });
 
 },{"./animinterp.js":1,"./arrayobjects.js":2,"./puddi/puddi.js":6,"./puddi/puddidrawable.js":7,"sexp":4,"victor":5}],4:[function(require,module,exports){
@@ -2673,8 +2665,9 @@ function cycle(tFrame) {
 
 exports._engine = engine;
 
-exports.run = function(ctx) {
-    state._ctx = ctx;
+exports.run = function(canvas) {
+    state._canvas = canvas
+    state._ctx = canvas.getContext('2d');
     // initialize state._time to the current time
     state._time = performance.now();
     // register the cycle function with the browser update loop
@@ -2700,6 +2693,7 @@ exports.getCtx = function() { return state._ctx; };
 
 exports.scale = function(s) {
     state._scale *= s;
+    state._canvas.width += 0; // reset canvas transform
     state._ctx.scale(state._scale, state._scale);
 };
 
